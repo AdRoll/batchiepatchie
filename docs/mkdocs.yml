@@ -1,0 +1,14 @@
+site_name: Batchiepatchie
+pages:
+    - Home:                    index.md
+    - Overview:                overview.md
+    - Quick start:             quickstart.md
+    - Deployment:              deployment.md
+    - Frontend:                frontend.md
+    - Job statuses:            statuses.md
+    - Timeouts:                timeouts.md
+    - Scaling hack:            scaling.md
+    - Terminator:              terminator.md
+theme:
+    name: readthedocs
+use_directory_urls: false

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <% for (key in htmlWebpackPlugin.files.css) { %>
+        <link href="<%= htmlWebpackPlugin.options.assetsHref %><%= htmlWebpackPlugin.files.css[key] %>" rel="stylesheet">
+        <% } %>
+
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <link rel="shortcut icon" href="<%= htmlWebpackPlugin.options.assetsHref %>favicon.ico">
+
+        <title><%= htmlWebpackPlugin.options.title %></title>
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <% for (key in htmlWebpackPlugin.files.chunks) { %>
+        <script src="<%= htmlWebpackPlugin.options.assetsHref %><%= htmlWebpackPlugin.files.chunks[key].entry %>" type="text/javascript"></script>
+        <% } %>
+    </body>
+</html>

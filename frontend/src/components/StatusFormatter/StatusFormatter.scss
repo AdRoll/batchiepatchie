@@ -1,0 +1,16 @@
+.status-formatter {
+    .alert {
+        padding: 0 6px;
+        margin-bottom: 0;
+    }
+
+    .alert-gone {
+        color: #fff;
+        background: #4d4d4d;
+    }
+
+    .alert-terminated {
+        color: #fff;
+        background: #bbaaee;
+    }
+}

@@ -1,0 +1,20 @@
+.job-queues-page {
+    .job-queues-listings {
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    }
+    .job-queues-grid {
+        padding: 10px;
+        .activation-formatter-btn {
+            text-align: center;
+            width: 100%;
+        }
+    }
+    .btn {
+        padding: 3px;
+        font-size: 0.7em;
+        font-weight: bold;
+    }
+}

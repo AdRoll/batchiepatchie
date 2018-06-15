@@ -1,0 +1,40 @@
+.jobs-page {
+    h2 {
+        float: left;
+    }
+
+    .actions {
+        float: right;
+        margin-bottom: 12px;
+
+        select {
+            float: right;
+            margin-right: 12px;
+            height: 42px;
+            line-height: 42px;
+            width: auto;
+        }
+
+        .btn {
+            float: right;
+            margin-right: 12px;
+        }
+    }
+
+    nav {
+        text-align: center;
+
+        .pagination {
+            margin-bottom: 0;
+        }
+    }
+
+    .auto-refresh {
+        float: left;
+        margin-top: 10px;
+        margin-right: 12px;
+        label {
+            margin-left: 10px;
+        }
+    }
+}

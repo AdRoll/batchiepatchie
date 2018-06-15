@@ -1,0 +1,18 @@
+{
+    "presets": [
+        "react",
+        ["es2015", { "modules": false } ]
+    ],
+    "plugins": [
+        "lodash",
+        "transform-object-rest-spread",
+        "transform-decorators-legacy",
+        "transform-class-properties",
+        "transform-async-to-generator"
+    ],
+    "env": {
+        "production": {
+            "plugins": ["transform-react-remove-prop-types"]
+        }
+    }
+}

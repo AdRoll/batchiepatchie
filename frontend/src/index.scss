@@ -1,0 +1,68 @@
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+@import "~bootstrap/scss/bootstrap";
+
+body {
+    font-family: sans-serif;
+}
+
+.nav {
+    font-weight: bold;
+    li {
+        margin: 10px;
+    }
+    .active a {
+        text-decoration: underline;
+        color: #000;
+    }
+}
+
+.pagination {
+    display: inline-block;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 1.2em;
+    .disabled {
+        color: #aaa;
+    }
+    li {
+        padding: 10px;
+        border-top: 1px solid #aaa;
+        border-bottom: 1px solid #aaa;
+        float: left;
+    }
+    li :hover {
+        cursor: pointer;
+    }
+}
+
+pre {
+    padding: 8px;
+    background: #f0f0f0;
+    border: 1px solid #aaa;
+}
+
+.terminal {
+    background: #f0f0f0;
+}
+
+.col-xs-5ths, .col-xs-2-5ths, .col-xs-3-5ths {
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.col-xs-5ths {
+    width: 20%;
+    float: left;
+}
+
+.col-xs-2-5ths {
+    width: 40%;
+    float: left;
+}
+
+.col-xs-3-5ths {
+    width: 60%;
+    float: left;
+}

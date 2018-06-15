@@ -1,0 +1,60 @@
+version: '2'
+services:
+  api:
+    build: .
+    environment:
+      - BUILD_ENV=${BUILD_ENV}
+      - BATCHIEPATCHIE_CONFIG=batchiepatchie-dockercompose-config.toml
+    volumes:
+      - .:/go/src/github.com/SemanticSugar/batchiepatchie
+    ports:
+      - "9999:9999"
+      - "5454:5454"
+    privileged: true   # Privileges are dropped by docker_run.sh, privileges needed for user setup in local development
+    links:
+      - postgres
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 90000
+        hard: 90000
+    depends_on:
+      - "postgres"
+      - "migrations"
+
+  migrations:
+    build: .
+    volumes:
+      - .:/go/src/github.com/SemanticSugar/batchiepatchie
+    links:
+      - postgres
+    depends_on:
+      - "postgres"
+    command: sh -c 'sleep 20 && cd migrations && goose postgres "user=postgres dbname=postgres sslmode=disable host=postgres password=123456" up'
+
+  postgres:
+    image: postgres:9.6.2-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 123456
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/src:/opt/frontend/src
+      - ./frontend/public:/opt/frontend/public
+    ports:
+      - "8080:8080"
+    links:
+      - api
+    command: npm run dev
+
+networks:
+  default:
+    ipam:
+      config:
+       - subnet: "172.29.0.0/16"
+

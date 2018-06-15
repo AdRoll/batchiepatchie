@@ -1,0 +1,10 @@
+host = "0.0.0.0"
+port = 5454
+region = "us-west-2"
+database_host = "postgres"
+database_port = 5432
+database_username = "postgres"
+database_name = "postgres"
+database_password = "123456"
+frontend_assets = "local"
+frontend_assets_local_prefix = "frontend/dist"

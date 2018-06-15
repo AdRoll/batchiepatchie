@@ -1,0 +1,19 @@
+.terminal {
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    pre {
+        padding: 0;
+        font-size: 12px;
+        margin-bottom: 0;
+        border: 0;
+        overflow: hidden;
+        margin-left: 6px;
+        margin-right: 6px;
+        color: #333;
+    }
+}
+
+.error {
+    color: #441f0c;
+}

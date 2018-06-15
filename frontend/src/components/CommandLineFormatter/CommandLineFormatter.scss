@@ -1,0 +1,11 @@
+.command-line-formatter {
+    pre {
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: none;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
