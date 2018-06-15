@@ -46,10 +46,19 @@ type KillTasks struct {
 func (s *Server) Find(c echo.Context) error {
 	c.QueryParams()
 	search := c.QueryParam("q")
-	queue := c.QueryParam("queue")
-	status := c.QueryParam("status")
+	queuesStr := c.QueryParam("queue")
+	statusStr := c.QueryParam("status")
 	column := c.QueryParam("sortColumn")
 	sort := strings.ToUpper(c.QueryParam("sortDirection")) == "ASC"
+
+	var queues []string
+	var status []string
+	if len(queuesStr) > 0 {
+		queues = strings.Split(queuesStr, ",")
+	}
+	if len(statusStr) > 0 {
+		status = strings.Split(statusStr, ",")
+	}
 
 	page, err := strconv.Atoi(c.QueryParam("page"))
 	if err != nil {
@@ -57,11 +66,11 @@ func (s *Server) Find(c echo.Context) error {
 		page = 0
 	}
 
-	jobs, err := s.Storage.Find(&jobs.Options{
+	foundJobs, err := s.Storage.Find(&jobs.Options{
 		Search:  search,
 		Limit:   defaultQueryLimit,
 		Offset:  page * defaultQueryLimit,
-		Queue:   queue,
+		Queues:  queues,
 		SortBy:  column,
 		SortAsc: sort,
 		Status:  status,
@@ -73,7 +82,7 @@ func (s *Server) Find(c echo.Context) error {
 		return err
 	}
 
-	c.JSON(http.StatusOK, jobs)
+	c.JSON(http.StatusOK, foundJobs)
 	return nil
 }
 

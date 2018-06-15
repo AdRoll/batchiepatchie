@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -110,14 +111,33 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 			`, index, index, index, index, index, index))
 	}
 
-	if opts.Status != "" {
-		args = append(args, opts.Status)
-		whereClausesPr = append(whereClausesPr, "status = $"+strconv.Itoa(len(args)))
+	var statusBuffer bytes.Buffer
+	var queuesBuffer bytes.Buffer
+
+	if len(opts.Status) > 0 {
+		statusBuffer.WriteString("status IN (")
+		for i, item := range opts.Status {
+			args = append(args, item)
+			statusBuffer.WriteString("$" + strconv.Itoa(len(args)))
+			if i < len(opts.Status) - 1 {
+				statusBuffer.WriteString(",")
+			}
+		}
+		statusBuffer.WriteString(")")
+		whereClausesPr = append(whereClausesPr, statusBuffer.String())
 	}
 
-	if opts.Queue != "" {
-		args = append(args, opts.Queue)
-		whereClausesPr = append(whereClausesPr, "job_queue = $"+strconv.Itoa(len(args)))
+	if len(opts.Queues) > 0 {
+		queuesBuffer.WriteString("job_queue IN (")
+		for i, item := range opts.Queues {
+			args = append(args, item)
+			queuesBuffer.WriteString("$" + strconv.Itoa(len(args)))
+			if i < len(opts.Queues) - 1 {
+				queuesBuffer.WriteString(",")
+			}
+		}
+		queuesBuffer.WriteString(")")
+		whereClausesPr = append(whereClausesPr, queuesBuffer.String())
 	}
 
 	unconditional_filters := strings.Join(whereClausesPr, " AND ")

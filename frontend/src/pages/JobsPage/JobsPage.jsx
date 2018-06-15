@@ -21,9 +21,11 @@ import JobLinkFormatter from 'components/JobLinkFormatter/JobLinkFormatter';
 import NameFormatter from 'components/NameFormatter/NameFormatter';
 import ImageFormatter from 'components/ImageFormatter/ImageFormatter';
 import DurationFormatter from 'components/DurationFormatter/DurationFormatter';
-import TerminationRequestedFormatter from 'components/TerminationRequestedFormatter/TerminationRequestedFormatter';
 import RowRenderer from 'components/RowRenderer/RowRenderer';
+import Select from 'react-select';
 import './JobsPage.scss';
+import 'react-select/dist/react-select.css';
+
 
 const AUTO_REFRESH_TIMEOUT = 5000; // ms
 
@@ -137,7 +139,9 @@ class JobsPage extends React.Component {
         super(props);
         // Using state for autoRefresh so it resets to false on navigation
         this.state = {
-            autoRefresh: false
+            autoRefresh: false,
+            selectedStatus: '',
+            selectedQueue: '',
         };
     }
 
@@ -157,8 +161,6 @@ class JobsPage extends React.Component {
             jobs,
             height,
             queues,
-            selectedQueue,
-            selectedStatus,
             status
         } = this.props;
 
@@ -172,11 +174,15 @@ class JobsPage extends React.Component {
             );
         }
 
+        const statusOptions = STATUS_ORDER.map(s => ({ label: s, value: s }));
+        const queuesOptions = queues.map(q => ({ label: q, value: q }));
+
         const listHeight = height - 240;
 
         return (
             <div className='jobs-page'>
                 <h2>Jobs</h2>
+
                 <div className='actions'>
                     <button
                         className='btn btn-success'
@@ -192,26 +198,33 @@ class JobsPage extends React.Component {
                     >
                         Kill { this.props.selectedIds.length } jobs
                     </button>
-
-                    <select className='form-control status-selector' onChange={ this.selectQueue } value={ selectedQueue }>
-                        <option>All Queues</option>
-                        { queues.map(queue => <option
-                            key={ queue }
-                            value={ queue }>
-                            { queue }
-                        </option>) }
-                    </select>
-
-                    <select className='form-control queue-selector' onChange={ this.selectStatus } value={ selectedStatus }>
-                        <option>All Statuses</option>
-                        { STATUS_ORDER.map(status => <option
-                                key={ status }
-                                value={ status }>
-                            { STATUS_LABELS[status] }
-                        </option>) }
-                    </select>
-
                     <div className='auto-refresh'>
+                        <div className='status-selector'>
+                            <Select
+                                closeOnSelect={false}
+                                removeSelected={true}
+                                disabled={false}
+                                multi
+                                onChange={this.handleStatusChange}
+                                options={statusOptions}
+                                placeholder="Status"
+                                value={this.state.selectedStatus}
+                                simpleValue
+                            />
+                        </div>
+                        <div className='queues-selector'>
+                            <Select
+                                closeOnSelect={false}
+                                removeSelected={true}
+                                disabled={false}
+                                multi
+                                onChange={this.handleQueueChange}
+                                options={queuesOptions}
+                                placeholder="Queues"
+                                value={this.state.selectedQueue}
+                                simpleValue
+                            />
+                        </div>
                         <input
                             id='auto-refresh'
                             className='ar-toggle'
@@ -297,12 +310,13 @@ class JobsPage extends React.Component {
         }
     }
 
-    selectQueue = (e) => {
-        this.props.setAndFetch({selectedQueue: e.target.value});
+    handleStatusChange = (newStatus) => {
+        this.props.setAndFetch({ selectedStatus: newStatus });
+        this.setState({ selectedStatus: newStatus});
     }
-
-    selectStatus = (e) => {
-        this.props.setAndFetch({selectedStatus: e.target.value});
+    handleQueueChange = (newQueue) => {
+        this.props.setAndFetch({ selectedQueue: newQueue });
+        this.setState({ selectedQueue: newQueue});
     }
 
     // Load query params into store, resetting any values with defaults
@@ -340,8 +354,6 @@ const mapStateToProps = state => ({
     height: state.layout.height,
     queues: state.job.queues,
     routing: state.routing,
-    selectedQueue: state.job.selectedQueue,
-    selectedStatus: state.job.selectedStatus,
     selectedIds: state.job.selectedIds,
     status: state.status[JOBS]
 });

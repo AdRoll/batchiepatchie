@@ -64,10 +64,10 @@ type Options struct {
 	Search  string
 	Limit   int
 	Offset  int
-	Queue   string
+	Queues  []string
 	SortBy  string
 	SortAsc bool
-	Status  string
+	Status  []string
 }
 
 // KillTaskID is a struct to handle JSON request to kill a task
