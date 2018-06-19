@@ -1,8 +1,19 @@
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+@import "~bootswatch/dist/simplex/variables";
 @import "~bootstrap/scss/bootstrap";
+@import "~bootswatch/dist/simplex/bootswatch";
 
 body {
-    font-family: sans-serif;
+}
+
+.alert-warning {
+    background: #ffb;
+    border: solid 1px #efef77;
+}
+
+.alert-danger {
+    background: #faa;
+    border: solid 1px #eaa;
 }
 
 .nav {

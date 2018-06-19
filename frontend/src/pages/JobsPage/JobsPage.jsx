@@ -198,33 +198,33 @@ class JobsPage extends React.Component {
                     >
                         Kill { this.props.selectedIds.length } jobs
                     </button>
+                    <div className='status-selector'>
+                        <Select
+                            closeOnSelect={false}
+                            removeSelected={true}
+                            disabled={false}
+                            multi
+                            onChange={this.handleStatusChange}
+                            options={statusOptions}
+                            placeholder="Status"
+                            value={this.state.selectedStatus}
+                            simpleValue
+                        />
+                    </div>
+                    <div className='queues-selector'>
+                        <Select
+                            closeOnSelect={false}
+                            removeSelected={true}
+                            disabled={false}
+                            multi
+                            onChange={this.handleQueueChange}
+                            options={queuesOptions}
+                            placeholder="Queues"
+                            value={this.state.selectedQueue}
+                            simpleValue
+                        />
+                    </div>
                     <div className='auto-refresh'>
-                        <div className='status-selector'>
-                            <Select
-                                closeOnSelect={false}
-                                removeSelected={true}
-                                disabled={false}
-                                multi
-                                onChange={this.handleStatusChange}
-                                options={statusOptions}
-                                placeholder="Status"
-                                value={this.state.selectedStatus}
-                                simpleValue
-                            />
-                        </div>
-                        <div className='queues-selector'>
-                            <Select
-                                closeOnSelect={false}
-                                removeSelected={true}
-                                disabled={false}
-                                multi
-                                onChange={this.handleQueueChange}
-                                options={queuesOptions}
-                                placeholder="Queues"
-                                value={this.state.selectedQueue}
-                                simpleValue
-                            />
-                        </div>
                         <input
                             id='auto-refresh'
                             className='ar-toggle'
