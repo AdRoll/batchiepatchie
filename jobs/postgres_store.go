@@ -119,7 +119,7 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 		for i, item := range opts.Status {
 			args = append(args, item)
 			statusBuffer.WriteString("$" + strconv.Itoa(len(args)))
-			if i < len(opts.Status) - 1 {
+			if i < len(opts.Status)-1 {
 				statusBuffer.WriteString(",")
 			}
 		}
@@ -132,7 +132,7 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 		for i, item := range opts.Queues {
 			args = append(args, item)
 			queuesBuffer.WriteString("$" + strconv.Itoa(len(args)))
-			if i < len(opts.Queues) - 1 {
+			if i < len(opts.Queues)-1 {
 				queuesBuffer.WriteString(",")
 			}
 		}
@@ -460,7 +460,7 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			}
 
 			if err != nil {
-				log.Warning(err)
+				log.Warning(err, ": ", job)
 				return err
 			}
 		}
