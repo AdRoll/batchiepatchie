@@ -13,7 +13,10 @@ import (
 	"github.com/SemanticSugar/batchiepatchie/syncer"
 	"github.com/bakatz/echo-logrusmiddleware"
 	"github.com/labstack/echo"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/opentracer"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 // fetchIndex fetches the index.html from s3
@@ -60,6 +63,14 @@ func main() {
 		log.Info("logentries_token supplied, will connect to LogEntries.")
 		setUpLogEntriesHooks(config.Conf.LogEntriesKey)
 	}
+
+	var trace opentracing.Tracer
+	if config.Conf.UseDatadogTracing {
+		trace = opentracer.New(tracer.WithServiceName("batchiepatchie"))
+	} else {
+		trace = opentracing.NoopTracer{}
+	}
+	opentracing.SetGlobalTracer(trace)
 
 	storage, err := jobs.NewPostgreSQLStore(config.Conf.DatabaseHost, config.Conf.DatabasePort, config.Conf.DatabaseUsername, config.Conf.DatabaseName, config.Conf.DatabasePassword)
 	if err != nil {

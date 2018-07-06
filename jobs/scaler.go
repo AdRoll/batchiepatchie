@@ -3,10 +3,14 @@ package jobs
 import (
 	"github.com/SemanticSugar/batchiepatchie/awsclients"
 	"github.com/aws/aws-sdk-go/service/batch"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
 func ScaleComputeEnvironments(storer Storer, queues []string) {
+	span := opentracing.StartSpan("ScaleComputeEnvironments")
+	defer span.Finish()
+
 	// Don't bother going to database if we have no queues.
 	if len(queues) == 0 {
 		return

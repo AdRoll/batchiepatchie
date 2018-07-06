@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
+	"github.com/opentracing/opentracing-go"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -44,6 +45,9 @@ type KillTasks struct {
 
 // Find is a request handler, returns json with jobs matching the query param 'q'
 func (s *Server) Find(c echo.Context) error {
+	span := opentracing.StartSpan("API.Find")
+	defer span.Finish()
+
 	c.QueryParams()
 	search := c.QueryParam("q")
 	queuesStr := c.QueryParam("queue")
@@ -87,6 +91,9 @@ func (s *Server) Find(c echo.Context) error {
 }
 
 func (s *Server) GetStatus(c echo.Context) error {
+	span := opentracing.StartSpan("API.GetStatus")
+	defer span.Finish()
+
 	query := c.Param("id")
 
 	job, err := s.Storage.GetStatus(query)
@@ -107,6 +114,9 @@ func (s *Server) GetStatus(c echo.Context) error {
 
 // FindOne is a request handler, returns a job matching the query parameter 'q'
 func (s *Server) FindOne(c echo.Context) error {
+	span := opentracing.StartSpan("API.FindOne")
+	defer span.Finish()
+
 	query := c.Param("id")
 
 	job, err := s.Storage.FindOne(query)
@@ -122,6 +132,9 @@ func (s *Server) FindOne(c echo.Context) error {
 
 // KillMany is a request handler, kills a job matching the post parameter 'id' (AWS task ID)
 func (s *Server) KillMany(c echo.Context) error {
+	span := opentracing.StartSpan("API.KillMany")
+	defer span.Finish()
+
 	obj, err := BodyToKillTask(c)
 
 	if err != nil {
@@ -145,6 +158,9 @@ func (s *Server) KillMany(c echo.Context) error {
 }
 
 func (s *Server) FetchLogs(c echo.Context) error {
+	span := opentracing.StartSpan("API.FetchLogs")
+	defer span.Finish()
+
 	const LOG_GROUP_NAME = "/aws/batch/job"
 
 	format := c.QueryParam("format")
@@ -260,6 +276,9 @@ func (s *Server) FetchLogs(c echo.Context) error {
 
 // KillOne is a request handler, kills a job matching the post parameter 'id' (AWS task ID)
 func (s *Server) KillOne(c echo.Context) error {
+	span := opentracing.StartSpan("API.KillOne")
+	defer span.Finish()
+
 	task := new(KillTaskID)
 
 	if err := c.Bind(task); err != nil {
@@ -279,6 +298,9 @@ func (s *Server) KillOne(c echo.Context) error {
 }
 
 func (s *Server) ListActiveJobQueues(c echo.Context) error {
+	span := opentracing.StartSpan("API.ListActiveJobQueues")
+	defer span.Finish()
+
 	active_job_queues, err := s.Storage.ListActiveJobQueues()
 	if err != nil {
 		log.Error(err)
@@ -291,6 +313,9 @@ func (s *Server) ListActiveJobQueues(c echo.Context) error {
 }
 
 func (s *Server) ListAllJobQueues(c echo.Context) error {
+	span := opentracing.StartSpan("API.ListAllJobQueues")
+	defer span.Finish()
+
 	// This function gets *all* job queues, even those not registered to
 	// Batchiepatchie.  Therefore, we must ask AWS about all the job
 	// queues. (as opposed to looking in our data store).
@@ -328,6 +353,9 @@ func (s *Server) ListAllJobQueues(c echo.Context) error {
 }
 
 func (s *Server) ActivateJobQueue(c echo.Context) error {
+	span := opentracing.StartSpan("API.ActivateJobQueue")
+	defer span.Finish()
+
 	job_queue_name := c.Param("name")
 	err := s.Storage.ActivateJobQueue(job_queue_name)
 	if err != nil {
@@ -340,6 +368,9 @@ func (s *Server) ActivateJobQueue(c echo.Context) error {
 }
 
 func (s *Server) DeactivateJobQueue(c echo.Context) error {
+	span := opentracing.StartSpan("API.DeactivateJobQueue")
+	defer span.Finish()
+
 	job_queue_name := c.Param("name")
 	err := s.Storage.DeactivateJobQueue(job_queue_name)
 	if err != nil {

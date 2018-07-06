@@ -1,10 +1,14 @@
 package jobs
 
 import (
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
 func KillTimedOutJobs(finder FinderStorer) error {
+	span := opentracing.StartSpan("KillTimedOutJobs")
+	defer span.Finish()
+
 	timed_out_jobs, err := finder.FindTimedoutJobs()
 	if err != nil {
 		return err

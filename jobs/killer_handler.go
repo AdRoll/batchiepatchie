@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/batch"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -12,6 +13,9 @@ type KillerHandler struct {
 }
 
 func (th *KillerHandler) KillOne(jobID string, reason string, store Storer) error {
+	span := opentracing.StartSpan("KillOne")
+	defer span.Finish()
+
 	input := &batch.TerminateJobInput{
 		JobId:  aws.String(jobID),
 		Reason: aws.String("Cancelled job from batchiepatchie: " + reason),
@@ -30,6 +34,9 @@ func (th *KillerHandler) KillOne(jobID string, reason string, store Storer) erro
 }
 
 func (th *KillerHandler) KillInstances(instances []string) error {
+	span := opentracing.StartSpan("KillInstances")
+	defer span.Finish()
+
 	// Exit early if there are no instances to kill
 	if len(instances) == 0 {
 		return nil

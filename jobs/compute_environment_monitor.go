@@ -3,10 +3,14 @@ package jobs
 import (
 	"github.com/SemanticSugar/batchiepatchie/awsclients"
 	"github.com/aws/aws-sdk-go/service/batch"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
-func GetComputeEnvironments() ([]ComputeEnvironment, error) {
+func GetComputeEnvironments(parentSpan opentracing.Span) ([]ComputeEnvironment, error) {
+	span := opentracing.StartSpan("GetComputeEnvironments", opentracing.ChildOf(parentSpan.Context()))
+	defer span.Finish()
+
 	var nextToken *string
 	var hundred int64
 
@@ -58,11 +62,14 @@ func GetComputeEnvironments() ([]ComputeEnvironment, error) {
 }
 
 func MonitorComputeEnvironments(fs Storer, queues []string) {
+	span := opentracing.StartSpan("MonitorComputeEnvironments")
+	defer span.Finish()
+
 	if len(queues) == 0 {
 		return
 	}
 
-	compute_environments, err := GetComputeEnvironments()
+	compute_environments, err := GetComputeEnvironments(span)
 	if err != nil {
 		return
 	}
