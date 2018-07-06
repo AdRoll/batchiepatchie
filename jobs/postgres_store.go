@@ -190,7 +190,7 @@ func (pq *postgreSQLStore) FindTimedoutJobs() ([]string, error) {
         SELECT job_id
 	FROM jobs
 	WHERE created_at + interval '1 second' * timeout < now()
-	  AND timeout != -1 AND status != 'SUCCEEDED' AND status != 'GONE' AND status != 'FAILED'`
+	  AND timeout != -1 AND status != 'SUCCEEDED' AND status != 'GONE' AND status != 'FAILED' AND termination_requested = 'f'`
 
 	rows, err := pq.connection.Query(query)
 	if err != nil {
