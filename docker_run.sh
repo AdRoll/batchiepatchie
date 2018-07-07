@@ -26,6 +26,10 @@ exec gosu ${CHANGE_TO} bash <<"EOF"
 set -euxo pipefail
 export VERSION=`cat version`
 
+# Get local IP address; or just assume it is 127.0.0.1
+BATCHIEPATCHIE_IP=$(curl http://instance-data/latest/meta-data/local-ipv4) || BATCHIEPATCHIE_IP=127.0.0.1
+export BATCHIEPATCHIE_IP
+
 BUILD_ENV_ENV=${BUILD_ENV:-}
 
 if [ "${BUILD_ENV_ENV}" = "DEBUG" ]; then

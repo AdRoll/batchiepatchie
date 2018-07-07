@@ -66,7 +66,19 @@ func main() {
 
 	var trace opentracing.Tracer
 	if config.Conf.UseDatadogTracing {
-		trace = opentracer.New(tracer.WithServiceName("batchiepatchie"))
+		ip := os.Getenv("BATCHIEPATCHIE_IP")
+		if ip != "" {
+			// If we have been passed an IP explictly; attempt to
+			// use it to connect to DataDog tracer When we run
+			// batchiepatchie inside Docker container and ddtracer
+			// on the host; this lets us connect to the agent
+			// running on host.
+			agentAddr := ip + ":8126"
+			log.Info("Will attempt to ddtrace into ", agentAddr)
+			trace = opentracer.New(tracer.WithServiceName("batchiepatchie"), tracer.WithAgentAddr(agentAddr))
+		} else {
+			trace = opentracer.New(tracer.WithServiceName("batchiepatchie"))
+		}
 	} else {
 		trace = opentracing.NoopTracer{}
 	}
