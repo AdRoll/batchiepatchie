@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/batch"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -14,6 +15,9 @@ type arnInfo struct {
 }
 
 func MonitorECSClusters(fs Storer, queues []string) error {
+	span := opentracing.StartSpan("MonitorECSClusters")
+	defer span.Finish()
+
 	/* TODO: handle pagination in all these API calls. */
 
 	/* First we collect all compute environments references by any queues

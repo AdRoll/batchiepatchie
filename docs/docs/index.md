@@ -17,4 +17,5 @@ Index
  - [Timeouts](timeouts.md)
  - [Scaling hack](scaling.md)
  - [Terminator](terminator.md)
+ - [Tracing](tracing.md)
 

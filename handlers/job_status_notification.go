@@ -5,6 +5,7 @@ import (
 	"github.com/SemanticSugar/batchiepatchie/jobs"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
+	"github.com/opentracing/opentracing-go"
 	"io"
 	"io/ioutil"
 	"regexp"
@@ -55,6 +56,9 @@ func stripArn(arnied_name string) string {
 }
 
 func (s *Server) JobStatusNotification(c echo.Context) error {
+	span := opentracing.StartSpan("API.JobStatusNotification")
+	defer span.Finish()
+
 	// This function can be called from outside to update job status.
 	// It's meant to used from an AWS Lambda function that is triggered on AWS Batch events.
 	body, err := ioutil.ReadAll(io.LimitReader(c.Request().Body, 100000))

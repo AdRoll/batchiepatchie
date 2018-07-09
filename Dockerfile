@@ -1,12 +1,11 @@
-FROM golang:1.8
+FROM golang:1.10
 
 RUN mkdir -p /go/src/github.com/SemanticSugar/batchiepatchie
 WORKDIR /go/src/github.com/SemanticSugar/batchiepatchie
 COPY . /go/src/github.com/SemanticSugar/batchiepatchie
 RUN chmod +x /go/src/github.com/SemanticSugar/batchiepatchie/docker_run.sh
 
-RUN go-wrapper download
-RUN go-wrapper install
+RUN go get
 
 EXPOSE 5454
 EXPOSE 9999

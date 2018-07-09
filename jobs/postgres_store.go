@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 
 	// postgres sql driver
@@ -59,6 +60,9 @@ func searchEscape(search string) string {
 }
 
 func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
+	span := opentracing.StartSpan("PG.Find")
+	defer span.Finish()
+
 	var sortDirection string
 	if opts.SortAsc {
 		sortDirection = "ASC"
@@ -186,6 +190,9 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 }
 
 func (pq *postgreSQLStore) FindTimedoutJobs() ([]string, error) {
+	span := opentracing.StartSpan("PG.FindTimedoutJobs")
+	defer span.Finish()
+
 	query := `
         SELECT job_id
 	FROM jobs
@@ -215,6 +222,9 @@ func (pq *postgreSQLStore) FindTimedoutJobs() ([]string, error) {
 }
 
 func (pq *postgreSQLStore) FindOne(index string) (*Job, error) {
+	span := opentracing.StartSpan("PG.FindOne")
+	defer span.Finish()
+
 	query := `
 			SELECT job_id,
 				job_name,
@@ -267,6 +277,9 @@ func (pq *postgreSQLStore) FindOne(index string) (*Job, error) {
 }
 
 func (pq *postgreSQLStore) StaleOldJobs(job_ids map[string]bool) error {
+	span := opentracing.StartSpan("PG.StaleOldJobs")
+	defer span.Finish()
+
 	/*
 	   What happens in this function is that we take all jobs we currently know
 	   about and then mark all jobs that are not either SUCCESS or FAILED as GONE.
@@ -339,6 +352,9 @@ func (pq *postgreSQLStore) StaleOldJobs(job_ids map[string]bool) error {
 }
 
 func (pq *postgreSQLStore) Store(jobs []*Job) error {
+	span := opentracing.StartSpan("PG.Store")
+	defer span.Finish()
+
 	/* Don't bother going to database to insert 0 jobs */
 	if len(jobs) == 0 {
 		return nil
@@ -476,6 +492,9 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 }
 
 func (pq *postgreSQLStore) EstimateRunningLoadByJobQueue(queues []string) (map[string]RunningLoad, error) {
+	span := opentracing.StartSpan("PG.EstimateRunningLoadByJobQueue")
+	defer span.Finish()
+
 	query := `
 	  SELECT job_queue,SUM(vcpus),SUM(memory) FROM jobs WHERE
 	    status = 'SUBMITTED' OR
@@ -518,6 +537,9 @@ func (pq *postgreSQLStore) EstimateRunningLoadByJobQueue(queues []string) (map[s
 }
 
 func (pq *postgreSQLStore) UpdateJobSummaryLog(job_summaries []JobSummary) error {
+	span := opentracing.StartSpan("PG.UpdateJobSummaryLog")
+	defer span.Finish()
+
 	ctx_timeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -622,6 +644,9 @@ func (pq *postgreSQLStore) UpdateJobSummaryLog(job_summaries []JobSummary) error
 }
 
 func (pq *postgreSQLStore) UpdateJobLogTerminationRequested(jobID string) error {
+	span := opentracing.StartSpan("PG.UpdateJobLogTerminationRequested")
+	defer span.Finish()
+
 	_, err := pq.connection.Exec(`UPDATE jobs SET termination_requested = 't' WHERE job_id = $1`, jobID)
 	if err != nil {
 		log.Warning("Cannot update job termination requested status: ", err)
@@ -643,6 +668,9 @@ func getRowsAsList(rows *sql.Rows) ([]string, error) {
 }
 
 func (pq *postgreSQLStore) GetStartingStateStuckEC2Instances() ([]string, error) {
+	span := opentracing.StartSpan("PG.GetStartingStateStuckEC2Instances")
+	defer span.Finish()
+
 	query := `SELECT DISTINCT ta.instance_id FROM jobs j JOIN task_arns_to_instance_info ta ON ta.task_arn = j.task_arn WHERE instance_id is not null AND (now() - last_updated) > '600 seconds' AND status = 'STARTING' AND j.task_arn is not null`
 
 	rows, err := pq.connection.Query(query)
@@ -660,6 +688,9 @@ func (pq *postgreSQLStore) GetStartingStateStuckEC2Instances() ([]string, error)
 }
 
 func (pq *postgreSQLStore) GetAliveEC2Instances() ([]string, error) {
+	span := opentracing.StartSpan("PG.GetAliveEC2Instances")
+	defer span.Finish()
+
 	query := `SELECT DISTINCT instance_id FROM instances WHERE disappeared_at is null`
 
 	rows, err := pq.connection.Query(query)
@@ -677,6 +708,9 @@ func (pq *postgreSQLStore) GetAliveEC2Instances() ([]string, error) {
 }
 
 func (pq *postgreSQLStore) UpdateECSInstances(ec2info map[string]Ec2Info, tasks_per_ec2instance map[string][]string) error {
+	span := opentracing.StartSpan("PG.UpdateECSInstances")
+	defer span.Finish()
+
 	alive_instances, err := pq.GetAliveEC2Instances()
 	if err != nil {
 		return err
@@ -795,6 +829,9 @@ func (pq *postgreSQLStore) UpdateECSInstances(ec2info map[string]Ec2Info, tasks_
 }
 
 func (pq *postgreSQLStore) UpdateTaskArnsInstanceIDs(ec2info map[string]Ec2Info, task_ec2_mapping map[string]string) error {
+	span := opentracing.StartSpan("PG.UpdateTaskArnsInstanceIDs")
+	defer span.Finish()
+
 	transaction, err := pq.connection.Begin()
 	if err != nil {
 		log.Warning(err)
@@ -844,6 +881,9 @@ func (pq *postgreSQLStore) UpdateTaskArnsInstanceIDs(ec2info map[string]Ec2Info,
 }
 
 func (pq *postgreSQLStore) GetStatus(jobid string) (*JobStatus, error) {
+	span := opentracing.StartSpan("PG.GetStatus")
+	defer span.Finish()
+
 	rows, err := pq.connection.Query("SELECT status,job_id FROM jobs WHERE job_id = $1", jobid)
 	if err != nil {
 		return nil, err
@@ -868,6 +908,9 @@ func (pq *postgreSQLStore) GetStatus(jobid string) (*JobStatus, error) {
 }
 
 func (pq *postgreSQLStore) UpdateComputeEnvironmentsLog(ce_lst []ComputeEnvironment) error {
+	span := opentracing.StartSpan("PG.UpdateComputeEnvironmentsLog")
+	defer span.Finish()
+
 	transaction, err := pq.connection.Begin()
 	if err != nil {
 		log.Warning(err)
@@ -966,6 +1009,9 @@ func (pq *postgreSQLStore) UpdateComputeEnvironmentsLog(ce_lst []ComputeEnvironm
 }
 
 func (pq *postgreSQLStore) ActivateJobQueue(job_queue_name string) error {
+	span := opentracing.StartSpan("PG.ActivateJobQueue")
+	defer span.Finish()
+
 	ctx_timeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -993,6 +1039,9 @@ func (pq *postgreSQLStore) ActivateJobQueue(job_queue_name string) error {
 }
 
 func (pq *postgreSQLStore) DeactivateJobQueue(job_queue_name string) error {
+	span := opentracing.StartSpan("PG.DeactivateJobQueue")
+	defer span.Finish()
+
 	ctx_timeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -1020,6 +1069,9 @@ func (pq *postgreSQLStore) DeactivateJobQueue(job_queue_name string) error {
 }
 
 func (pq *postgreSQLStore) ListActiveJobQueues() ([]string, error) {
+	span := opentracing.StartSpan("PG.ListActiveJobQueues")
+	defer span.Finish()
+
 	query := `SELECT job_queue FROM activated_job_queues`
 	rows, err := pq.connection.Query(query)
 	if err != nil {
@@ -1045,6 +1097,9 @@ func (pq *postgreSQLStore) ListActiveJobQueues() ([]string, error) {
 }
 
 func (pq *postgreSQLStore) ListForcedScalingJobQueues() ([]string, error) {
+	span := opentracing.StartSpan("PG.ListForcedScalingJobQueues")
+	defer span.Finish()
+
 	query := `SELECT job_queue FROM activated_job_queues WHERE forced_scaling`
 	rows, err := pq.connection.Query(query)
 	if err != nil {
@@ -1070,6 +1125,9 @@ func (pq *postgreSQLStore) ListForcedScalingJobQueues() ([]string, error) {
 }
 
 func (pq *postgreSQLStore) flushJobStatusSubscriptions() error {
+	span := opentracing.StartSpan("PG.flushJobStatusSubscriptions")
+	defer span.Finish()
+
 	// Sends status update to every subscription that have subscribed to job
 	// statuses, that have a job that's had an update.
 
@@ -1165,6 +1223,9 @@ func (pq *postgreSQLStore) flushJobStatusSubscriptions() error {
 }
 
 func (pq *postgreSQLStore) SubscribeToJobStatus(jobID string) (<-chan Job, func()) {
+	span := opentracing.StartSpan("PG.SubscribeToJobStatus")
+	defer span.Finish()
+
 	// Subscribe to a job status. Returns a channel where new job events will
 	// be sent and a function unsubscribes from the subscription.
 	// It's important to use the unsubscriber function or memory will leak.

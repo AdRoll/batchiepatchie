@@ -8,11 +8,15 @@ import (
 	"github.com/SemanticSugar/batchiepatchie/config"
 	"github.com/SemanticSugar/batchiepatchie/jobs"
 	"github.com/aws/aws-sdk-go/service/batch"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 	"strconv"
 )
 
-func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summaries map[string]*jobs.JobSummary) (map[string]bool, error) {
+func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summaries map[string]*jobs.JobSummary, parentSpan opentracing.Span) (map[string]bool, error) {
+	topspan := opentracing.StartSpan("syncJobsStatus", opentracing.ChildOf(parentSpan.Context()))
+	defer topspan.Finish()
+
 	known_job_ids := make(map[string]bool)
 	/* TODO: make the job queues we are interested in configurable */
 	for _, queue := range queues {
@@ -33,9 +37,12 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 		var jobList *batch.ListJobsOutput
 		var err error
 
+		joblistspan := opentracing.StartSpan("listJobs", opentracing.ChildOf(topspan.Context()))
+
 		for {
 			jobList, err = awsclients.Batch.ListJobs(&list_jobs)
 			if err != nil {
+				joblistspan.Finish()
 				return nil, err
 			}
 
@@ -50,6 +57,7 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 			cp := string(*jobList.NextToken)
 			list_jobs.NextToken = &cp
 		}
+		joblistspan.Finish()
 
 		describe_jobs := batch.DescribeJobsInput{}
 		doDescriptionSync := func() error {
@@ -65,6 +73,7 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 
 		/* Also synchronize job descriptions, if we found any jobs. */
 		if len(jobList.JobSummaryList) > 0 {
+			describejobsspan := opentracing.StartSpan("describeJobs", opentracing.ChildOf(topspan.Context()))
 			for _, job := range jobList.JobSummaryList {
 				job_id_copy := string(*job.JobId)
 				describe_jobs.Jobs = append(describe_jobs.Jobs, &job_id_copy)
@@ -72,6 +81,7 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 				if len(describe_jobs.Jobs) >= 100 {
 					err = doDescriptionSync()
 					if err != nil {
+						describejobsspan.Finish()
 						return nil, err
 					}
 					describe_jobs = batch.DescribeJobsInput{}
@@ -80,9 +90,11 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 			if len(describe_jobs.Jobs) > 0 {
 				err = doDescriptionSync()
 				if err != nil {
+					describejobsspan.Finish()
 					return nil, err
 				}
 			}
+			describejobsspan.Finish()
 
 			log.Info("Fetched ", len(job_description_results), " job descriptions.")
 		}
@@ -211,6 +223,8 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 }
 
 func syncJobs(storer jobs.Storer, queues []string) (map[string]bool, error) {
+	syncjobsspan := opentracing.StartSpan("syncJobs")
+	defer syncjobsspan.Finish()
 
 	job_summaries := make(map[string]*jobs.JobSummary)
 	for _, queue := range queues {
@@ -220,7 +234,7 @@ func syncJobs(storer jobs.Storer, queues []string) (map[string]bool, error) {
 	known_job_ids := make(map[string]bool)
 	for _, status := range jobs.StatusList {
 		log.Info("Synchronizing jobs with status ", status, "...")
-		known_job_ids_status, err := syncJobsStatus(storer, status, queues, job_summaries)
+		known_job_ids_status, err := syncJobsStatus(storer, status, queues, job_summaries, syncjobsspan)
 		if err != nil {
 			return nil, err
 		}
@@ -271,13 +285,19 @@ func RunPeriodicSynchronizer(fs jobs.FinderStorer, killer jobs.Killer) {
 	go func() {
 		for {
 			if config.Conf.KillStuckJobs {
-				log.Info("Checking and killing stuck STARTING jobs.")
-				instance_ids, err := fs.GetStartingStateStuckEC2Instances()
-				if err != nil {
-					log.Error("Cannot get stuck starting jobs: ", err)
+				killer := func() {
+					killerspan := opentracing.StartSpan("killStuckJobs")
+					defer killerspan.Finish()
+
+					log.Info("Checking and killing stuck STARTING jobs.")
+					instance_ids, err := fs.GetStartingStateStuckEC2Instances()
+					if err != nil {
+						log.Error("Cannot get stuck starting jobs: ", err)
+					}
+					killer.KillInstances(instance_ids)
+					log.Info("Checked and killed stuck STARTING jobs.")
 				}
-				killer.KillInstances(instance_ids)
-				log.Info("Checked and killed stuck STARTING jobs.")
+				killer()
 			}
 
 			queues, err := fs.ListActiveJobQueues()

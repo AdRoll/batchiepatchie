@@ -44,6 +44,8 @@ type Config struct {
 	ScalePeriod int `toml:"scale_period"`
 
 	KillStuckJobs bool `toml:"kill_stuck_jobs"`
+
+	UseDatadogTracing bool `toml:"use_datadog_tracing"`
 }
 
 // Store config in a global variable
