@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
 import debounce from 'utils/debounce';
 import {
-    setSearch,
-    setAndFetch
+    setAndFetch,
+    setLocationToSearch,
+    setSearch
 } from 'stores/job';
 import SectionLoader from 'components/SectionLoader/SectionLoader';
 import {
@@ -79,7 +79,7 @@ class Search extends React.Component {
 
     handleKeyPress = (e) => {
         if (e.key === 'Enter' && this.props.statusKey !== JOBS) {
-            this.props.dispatch(push('/'));
+            this.props.setLocationToSearch();
         }
     }
 };
@@ -95,6 +95,7 @@ const mapStateToProps = state => {
 
 const actions = {
     setAndFetch,
+    setLocationToSearch,
     setSearch
 };
 
