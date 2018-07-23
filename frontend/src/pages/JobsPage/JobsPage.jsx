@@ -139,9 +139,7 @@ class JobsPage extends React.Component {
         super(props);
         // Using state for autoRefresh so it resets to false on navigation
         this.state = {
-            autoRefresh: false,
-            selectedStatus: '',
-            selectedQueue: '',
+            autoRefresh: false
         };
     }
 
@@ -207,7 +205,7 @@ class JobsPage extends React.Component {
                             onChange={this.handleStatusChange}
                             options={statusOptions}
                             placeholder="Status"
-                            value={this.state.selectedStatus}
+                            value={this.props.selectedStatus}
                             simpleValue
                         />
                     </div>
@@ -220,7 +218,7 @@ class JobsPage extends React.Component {
                             onChange={this.handleQueueChange}
                             options={queuesOptions}
                             placeholder="Queues"
-                            value={this.state.selectedQueue}
+                            value={this.props.selectedQueue}
                             simpleValue
                         />
                     </div>
@@ -312,11 +310,9 @@ class JobsPage extends React.Component {
 
     handleStatusChange = (newStatus) => {
         this.props.setAndFetch({ selectedStatus: newStatus });
-        this.setState({ selectedStatus: newStatus});
     }
     handleQueueChange = (newQueue) => {
         this.props.setAndFetch({ selectedQueue: newQueue });
-        this.setState({ selectedQueue: newQueue});
     }
 
     // Load query params into store, resetting any values with defaults
@@ -355,6 +351,8 @@ const mapStateToProps = state => ({
     queues: state.job.queues,
     routing: state.routing,
     selectedIds: state.job.selectedIds,
+    selectedQueue: state.job.selectedQueue,
+    selectedStatus: state.job.selectedStatus,
     status: state.status[JOBS]
 });
 

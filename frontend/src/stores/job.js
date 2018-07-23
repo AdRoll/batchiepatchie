@@ -81,8 +81,8 @@ export const QUERY_PARAM_DEFAULTS = {
     page: 0,
     q: '',
     selectedIds: [],
-    selectedQueue: 'all',
-    selectedStatus: 'all',
+    selectedQueue: '',
+    selectedStatus: '',
     sortDirection: SORT_DIRECTIONS.DESC,
     sortColumn: SORT_FIELDS.startTime
 };
@@ -370,6 +370,13 @@ export function fetchLogs(id) {
     return (dispatch, getState) => {
         const state = getState();
         return JobsApi.getLogs(id);
+    };
+};
+
+export function setLocationToSearch() {
+    return (dispatch, getState) => {
+        const state = getState();
+        dispatch(push(`/?q=${state.job.q}`));
     };
 };
 
