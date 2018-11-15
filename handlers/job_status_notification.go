@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/SemanticSugar/batchiepatchie/jobs"
+	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"github.com/opentracing/opentracing-go"

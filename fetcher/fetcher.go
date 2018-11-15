@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"regexp"
 
-	"github.com/SemanticSugar/batchiepatchie/awsclients"
+	"github.com/AdRoll/batchiepatchie/awsclients"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"

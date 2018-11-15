@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"github.com/SemanticSugar/batchiepatchie/awsclients"
+	"github.com/AdRoll/batchiepatchie/awsclients"
 	"github.com/aws/aws-sdk-go/service/batch"
 	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"

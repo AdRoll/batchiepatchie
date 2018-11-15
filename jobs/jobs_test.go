@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/SemanticSugar/batchiepatchie/jobs"
+	"github.com/AdRoll/batchiepatchie/jobs"
 )
 
 func TestJobStruct(t *testing.T) {

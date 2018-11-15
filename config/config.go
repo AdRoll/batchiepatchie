@@ -13,9 +13,9 @@ import (
 	"reflect"
 
 	"github.com/BurntSushi/toml"
-	"github.com/SemanticSugar/batchiepatchie/awsclients"
-	"github.com/SemanticSugar/batchiepatchie/envsubstituter"
-	"github.com/SemanticSugar/batchiepatchie/fetcher"
+	"github.com/AdRoll/batchiepatchie/awsclients"
+	"github.com/AdRoll/batchiepatchie/envsubstituter"
+	"github.com/AdRoll/batchiepatchie/fetcher"
 	log "github.com/sirupsen/logrus"
 )
 

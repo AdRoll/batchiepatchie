@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/SemanticSugar/batchiepatchie/jobs"
+	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"

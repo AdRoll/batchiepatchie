@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/SemanticSugar/batchiepatchie/awsclients"
-	"github.com/SemanticSugar/batchiepatchie/config"
-	"github.com/SemanticSugar/batchiepatchie/jobs"
+	"github.com/AdRoll/batchiepatchie/awsclients"
+	"github.com/AdRoll/batchiepatchie/config"
+	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/aws/aws-sdk-go/service/batch"
 	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"

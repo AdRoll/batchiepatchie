@@ -1,9 +1,9 @@
 FROM golang:1.10
 
-RUN mkdir -p /go/src/github.com/SemanticSugar/batchiepatchie
-WORKDIR /go/src/github.com/SemanticSugar/batchiepatchie
-COPY . /go/src/github.com/SemanticSugar/batchiepatchie
-RUN chmod +x /go/src/github.com/SemanticSugar/batchiepatchie/docker_run.sh
+RUN mkdir -p /go/src/github.com/AdRoll/batchiepatchie
+WORKDIR /go/src/github.com/AdRoll/batchiepatchie
+COPY . /go/src/github.com/AdRoll/batchiepatchie
+RUN chmod +x /go/src/github.com/AdRoll/batchiepatchie/docker_run.sh
 
 RUN go get
 
@@ -15,4 +15,4 @@ RUN go get -u github.com/pilu/fresh
 RUN go get -u github.com/derekparker/delve/cmd/dlv
 RUN go get -u github.com/pressly/goose/cmd/goose
 
-CMD ["/go/src/github.com/SemanticSugar/batchiepatchie/docker_run.sh"]
+CMD ["/go/src/github.com/AdRoll/batchiepatchie/docker_run.sh"]

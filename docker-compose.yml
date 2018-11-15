@@ -6,7 +6,7 @@ services:
       - BUILD_ENV=${BUILD_ENV}
       - BATCHIEPATCHIE_CONFIG=batchiepatchie-dockercompose-config.toml
     volumes:
-      - .:/go/src/github.com/SemanticSugar/batchiepatchie
+      - .:/go/src/github.com/AdRoll/batchiepatchie
     ports:
       - "9999:9999"
       - "5454:5454"
@@ -25,7 +25,7 @@ services:
   migrations:
     build: .
     volumes:
-      - .:/go/src/github.com/SemanticSugar/batchiepatchie
+      - .:/go/src/github.com/AdRoll/batchiepatchie
     links:
       - postgres
     depends_on:
