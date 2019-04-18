@@ -27,19 +27,23 @@ END;
 $body$ LANGUAGE plpgsql;
 -- +goose StatementEnd
 
+-- +goose StatementBegin
 CREATE TRIGGER job_status_update_trigger_insert
   AFTER
   INSERT
   ON jobs
   FOR EACH ROW
   EXECUTE PROCEDURE job_status_update_insert();
+-- +goose StatementEnd
 
+-- +goose StatementBegin
 CREATE TRIGGER job_status_update_trigger_update
   AFTER
   UPDATE
   ON jobs
   FOR EACH ROW
   EXECUTE PROCEDURE job_status_update_update();
+-- +goose StatementEnd
 
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
