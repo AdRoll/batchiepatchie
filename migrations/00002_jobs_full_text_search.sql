@@ -37,9 +37,11 @@ LANGUAGE plpgsql;
 -- +goose StatementEnd
 
 -- use the function as a trigger.
+-- +goose StatementBegin
 CREATE TRIGGER jobs_update_tsvector BEFORE INSERT OR UPDATE
 ON jobs
 FOR EACH ROW EXECUTE PROCEDURE jobs_weighted_search_vector_trigger();
+-- +goose StatementEnd
 
 -- create an index for the jobs search info.
 CREATE INDEX jobs_weighted_sv_idx ON jobs USING GIST(weighted_search_vector);
