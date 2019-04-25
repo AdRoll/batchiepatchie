@@ -1,7 +1,7 @@
 import jobs from './jobs.json';
 
 class API {
-    static baseURL = '/api/v1';
+    static baseURL = process.env.API_BASE_URL + '/api/v1';
 
     getJob(id) {
         return this.get(this.joinUrls(`jobs/${id}`));

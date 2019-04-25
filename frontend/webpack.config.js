@@ -24,7 +24,7 @@ switch (process.env.ENVIRONMENT) {
     case 'production':
     case 'staging':
         if (!process.env.LOCAL_ASSETS) {
-            assetsHref = url.resolve(process.env.ASSETS_BASE_URL, process.env.VERSION) + '/';
+            assetsHref = process.env.ASSETS_BASE_URL + process.env.VERSION + '/';
         }
 
         process.env.NODE_ENV = 'production';
@@ -36,6 +36,7 @@ switch (process.env.ENVIRONMENT) {
 //
 
 console.log('Assets:', assetsHref || 'local');
+console.log('Base API URL:', process.env.API_BASE_URL);
 
 console.log('Environment variables:');
 ['ENVIRONMENT', 'NODE_ENV'].map(function (value) {
