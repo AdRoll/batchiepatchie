@@ -1,4 +1,4 @@
-FROM node:6.11.0
+FROM node:10.15.3-stretch
 
 # This is a fix for the underlying docker image (node:6.11.0).
 # It is based on an old version of debian and the sources have changed

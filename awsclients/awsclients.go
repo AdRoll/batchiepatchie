@@ -60,7 +60,7 @@ func GetS3ClientForBucket(bucket string) (*s3.S3, error) {
 func OpenSessions(region string) error {
 	conf := &aws.Config{
 		Region:     aws.String(region),
-		MaxRetries: aws.Int(1000),
+		MaxRetries: aws.Int(10),
 	}
 	Session = session.Must(session.NewSession(conf))
 	Batch = batch.New(Session)

@@ -1,4 +1,5 @@
 const path = require('path');
+const url = require('url');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -23,7 +24,7 @@ switch (process.env.ENVIRONMENT) {
     case 'production':
     case 'staging':
         if (!process.env.LOCAL_ASSETS) {
-            assetsHref = path.join(process.env.ASSETS_BASE_URL, process.env.VERSION) + '/';
+            assetsHref = url.resolve(process.env.ASSETS_BASE_URL, process.env.VERSION) + '/';
         }
 
         process.env.NODE_ENV = 'production';
