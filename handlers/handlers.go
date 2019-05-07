@@ -5,7 +5,6 @@ Server structure for shared context between handlers.
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/AdRoll/batchiepatchie/awsclients"
@@ -164,6 +163,11 @@ func (s *Server) FetchLogs(c echo.Context) error {
 	const LOG_GROUP_NAME = "/aws/batch/job"
 
 	format := c.QueryParam("format")
+	if format != "text" {
+		c.JSON(http.StatusBadRequest, "Only 'text' format is supported. Add format=text to your query.")
+		return nil
+	}
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMETextPlain)
 
 	id := c.Param("id")
 
@@ -225,50 +229,52 @@ func (s *Server) FetchLogs(c echo.Context) error {
 		return nil
 	}
 
-	Events := []*cloudwatchlogs.OutputLogEvent{}
+	c.Response().WriteHeader(http.StatusOK)
 
 	startFromHead := true
-	logEvents, err2 := svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
-		LogGroupName:  aws.String(LOG_GROUP_NAME),
-		LogStreamName: logStreams.LogStreams[0].LogStreamName,
-		StartFromHead: &startFromHead,
-	})
+	var previousToken *string
+	var nextToken *string
+	lines_pushed := 0
+	for {
+		var logEvents *cloudwatchlogs.GetLogEventsOutput
+		var err2 error
 
-	if err2 != nil {
-		c.String(http.StatusOK, err2.Error())
-		return err2
-	}
-	Events = append(Events, logEvents.Events...)
+		previousToken = nextToken
 
-	prevToken := ""
-	nextToken := logEvents.NextForwardToken
-
-	for *nextToken != prevToken {
-		logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
-			LogGroupName:  aws.String(LOG_GROUP_NAME),
-			LogStreamName: logStreams.LogStreams[0].LogStreamName,
-			StartFromHead: &startFromHead,
-			NextToken:     nextToken,
-		})
+		if nextToken != nil {
+			logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
+				LogGroupName:  aws.String(LOG_GROUP_NAME),
+				LogStreamName: logStreams.LogStreams[0].LogStreamName,
+				StartFromHead: &startFromHead,
+				NextToken:     nextToken,
+			})
+		} else {
+			logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
+				LogGroupName:  aws.String(LOG_GROUP_NAME),
+				LogStreamName: logStreams.LogStreams[0].LogStreamName,
+				StartFromHead: &startFromHead,
+			})
+		}
 		if err2 != nil {
-			c.String(http.StatusOK, err2.Error())
 			return err2
 		}
-		Events = append(Events, logEvents.Events...)
-		prevToken = *nextToken
 		nextToken = logEvents.NextForwardToken
-	}
+		events := logEvents.Events
 
-	if format == "text" {
-		var buffer bytes.Buffer
-		for _, event := range Events {
-			buffer.WriteString(*event.Message + "\n")
+		for _, event := range events {
+			_, err2 = c.Response().Write([]byte(*event.Message + "\n"))
+			if err2 != nil {
+				return err2
+			}
+			lines_pushed += 1
+			if lines_pushed >= 1000 {
+				c.Response().Flush()
+			}
 		}
-		c.String(http.StatusOK, buffer.String())
-	} else if format == "json" {
-		c.JSON(http.StatusOK, Events)
-	} else {
-		c.JSON(http.StatusOK, Events)
+
+		if nextToken == nil || (previousToken != nil && *previousToken == *nextToken) {
+			break
+		}
 	}
 
 	return nil

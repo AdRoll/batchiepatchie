@@ -12,7 +12,20 @@ class API {
     }
 
     getLogs(id) {
-        return this.get(this.joinUrls(`jobs/${id}/logs`));
+        // This is some machinery to turn text response into a list of {
+        // 'Message': line } objects.
+        function to_text(response) {
+            return response.text();
+        }
+        function parse_text(text) {
+            let parsed = [];
+            const lines = text.split(/\n/);
+            for (let line in lines) {
+                parsed.push({ 'Message': lines[line] });
+            }
+            return new Promise((resolve, reject) => resolve(parsed));
+        }
+        return window.fetch(this.joinUrls(`jobs/${id}/logs?format=text`), { 'method': 'GET' }).then(this.checkStatus).then(to_text).then(parse_text);
     }
 
     getStats() {
