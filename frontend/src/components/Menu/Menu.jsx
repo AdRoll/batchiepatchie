@@ -7,11 +7,11 @@ import './Menu.scss';
 const pages = [
     {
         name: 'Jobs',
-        path: '/'
+        path: process.env.BASE_URL + '/'
     },
     {
         name: 'Job queues',
-        path: '/job_queues'
+        path: process.env.BASE_URL + '/job_queues'
     },
 ];
 

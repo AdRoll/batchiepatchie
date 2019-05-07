@@ -24,7 +24,7 @@ export default class JobLinkFormatter extends React.Component {
 
         return (
             <div className='job-link-formatter'>
-                <Link to={ `/job/${value}` }>{ value_prefix }</Link>
+                <Link to={ process.env.BASE_URL + `/job/${value}` }>{ value_prefix }</Link>
             </div>
         );
     }

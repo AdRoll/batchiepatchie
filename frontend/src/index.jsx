@@ -23,7 +23,7 @@ const history = syncHistoryWithStore(browserHistory, store);
 render(
     <Provider store={ store }>
         <Router history={ history }>
-            <Route path='/batchiepatchie' component={ LayoutContainer }>
+            <Route path={process.env.BASE_URL + '/'} component={ LayoutContainer }>
                 <IndexRoute component={ JobsPage } />
                 <Route path='job/:id' component={ JobPage } />
                 <Route path='stats' component={ StatsPage } />

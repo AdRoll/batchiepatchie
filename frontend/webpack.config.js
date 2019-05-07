@@ -14,6 +14,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 //
 
 process.env.ENVIRONMENT = process.env.ENVIRONMENT || 'development';
+process.env.API_BASE_URL = process.env.API_BASE_URL || '/api/v1';
+process.env.BASE_URL = process.env.BASE_URL || '';
 
 var assetsHref = '/';
 
@@ -141,7 +143,7 @@ module.exports = {
             template: './public/index.html',
             title: 'Batchiepatchie',
         }),
-        new webpack.EnvironmentPlugin(['ENVIRONMENT', 'NODE_ENV'])
+        new webpack.EnvironmentPlugin(['ENVIRONMENT', 'NODE_ENV', 'API_BASE_URL', 'BASE_URL'])
     ],
 
     resolve: {
