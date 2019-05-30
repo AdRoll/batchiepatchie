@@ -193,6 +193,21 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 				}
 				known_job_ids[job_id] = true
 
+				image := ""
+				vcpus := int64(0)
+				memory := int64(0)
+				if desc.Container != nil {
+					if desc.Container.Image != nil {
+						image = *desc.Container.Image
+					}
+					if desc.Container.Vcpus != nil {
+						vcpus = *desc.Container.Vcpus
+					}
+					if desc.Container.Memory != nil {
+						memory = *desc.Container.Memory
+					}
+				}
+
 				jobs_to_insert = append(jobs_to_insert, &jobs.Job{
 					Id:            *job.JobId,
 					Name:          *job.JobName,
@@ -200,11 +215,11 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 					Description:   *desc.JobDefinition,
 					LastUpdated:   time.Now().UTC(),
 					JobQueue:      queue,
-					Image:         *desc.Container.Image,
+					Image:         image,
 					CreatedAt:     time.Unix(*desc.CreatedAt/1000, (*desc.CreatedAt%1000)*1000000).UTC(),
 					StoppedAt:     stopped_at,
-					VCpus:         *desc.Container.Vcpus,
-					Memory:        *desc.Container.Memory,
+					VCpus:         vcpus,
+					Memory:        memory,
 					CommandLine:   string(command_line_json),
 					Timeout:       timeout,
 					StatusReason:  &status_reason,
