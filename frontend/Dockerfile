@@ -11,4 +11,4 @@ RUN pip install awscli
 # Copy and install frontend requirements
 COPY . /opt/frontend
 WORKDIR /opt/frontend
-RUN npm i
+RUN yarn
