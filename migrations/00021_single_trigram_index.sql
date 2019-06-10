@@ -8,12 +8,7 @@ DROP INDEX trgm_idx_jobs_command_line;
 DROP INDEX trgm_idx_jobs_job_definition;
 
 CREATE INDEX trgm_idx_jobs ON jobs USING gin (
-    job_id gin_trgm_ops,
-    job_name gin_trgm_ops,
-    job_queue gin_trgm_ops,
-    image gin_trgm_ops,
-    command_line gin_trgm_ops,
-    job_definition gin_trgm_ops
+    (job_id || job_name || job_queue || image || command_line || job_definition) gin_trgm_ops
 );
 
 -- +goose Down
