@@ -106,9 +106,9 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 		index := strconv.Itoa(len(args))
 
 		whereClausesScan = append(whereClausesScan, fmt.Sprintf(`
-			(last_updated > (now() - interval '30 days') AND
-			(job_id || job_name || job_queue || image || command_line || job_definition) LIKE $%s)
-		`, index, index, index, index, index, index))
+			last_updated > (now() - interval '30 days') AND
+			(job_id || job_name || job_queue || image || command_line || job_definition) LIKE $%s
+		`, index))
 	}
 
 	var statusBuffer bytes.Buffer
