@@ -139,6 +139,7 @@ func main() {
 		api.GET("/jobs/:id/status", s.GetStatus)
 		api.POST("/jobs/notify", s.JobStatusNotification)
 		api.GET("/jobs/:id/status_websocket", s.SubscribeToJobEvent)
+		api.GET("/jobs/stats", s.JobStats)
 	}
 
 	e.GET("/ping", pingHandler)

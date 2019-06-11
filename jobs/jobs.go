@@ -70,6 +70,24 @@ type Options struct {
 	Status  []string
 }
 
+type JobStatsOptions struct {
+	Queues    []string
+	Status    []string
+	Breakdown string
+	Interval  int64
+	Start     int64
+	End       int64
+}
+
+type JobStats struct {
+	JobQueue        string  `json:"job_queue"`
+	Timestamp       float64 `json:"timestamp"`
+	VCPUSeconds     float64 `json:"vcpu_seconds"`
+	MemorySeconds   float64 `json:"memory_seconds"`
+	InstanceSeconds float64 `json:"instance_seconds"`
+	JobCount        int     `json:"job_count"`
+}
+
 // KillTaskID is a struct to handle JSON request to kill a task
 type KillTaskID struct {
 	ID string `json:"id" form:"id" query:"id"`
@@ -101,6 +119,8 @@ type Finder interface {
 
 	// Simple endpoint that returns a string for job status.
 	GetStatus(jobid string) (*JobStatus, error)
+
+	JobStats(opts *JobStatsOptions) ([]*JobStats, error)
 }
 
 // Storer is an interface to save jobs in a database/store

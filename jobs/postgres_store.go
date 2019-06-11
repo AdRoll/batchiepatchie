@@ -1222,6 +1222,47 @@ func (pq *postgreSQLStore) flushJobStatusSubscriptions() error {
 	return nil
 }
 
+func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) {
+	span := opentracing.StartSpan("PG.JobStats")
+	defer span.Finish()
+
+	query := `
+		SELECT
+			job_queue,
+			FLOOR((EXTRACT(EPOCH FROM last_updated) / $1)) * $1 AS interval_alias,
+			SUM(vcpus * EXTRACT(EPOCH FROM (stopped_at - run_started_at))) vcpu_seconds,
+			SUM(memory * EXTRACT(EPOCH FROM (stopped_at - run_started_at))) memory_seconds,
+			SUM(EXTRACT(EPOCH FROM (stopped_at - run_started_at))) instance_seconds,
+			COUNT(*) job_count
+		FROM jobs
+		WHERE last_updated > TO_TIMESTAMP($2) AT TIME ZONE 'UTC'
+		AND last_updated < TO_TIMESTAMP($3) AT TIME ZONE 'UTC'
+		AND stopped_at IS NOT NULL
+		AND run_started_at IS NOT NULL
+		GROUP BY job_queue, interval_alias
+		ORDER BY 1 ASC, 2 ASC, 3 DESC, 4 DESC, 5 DESC
+	`
+
+	rows, err := pq.connection.Query(query, opts.Interval, opts.Start, opts.End)
+	if err != nil {
+		log.Warning("Cannot find timed out jobs from database: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	allJobStats := make([]*JobStats, 0)
+	for rows.Next() {
+		var jobStats JobStats
+		if err := rows.Scan(&jobStats.JobQueue, &jobStats.Timestamp, &jobStats.VCPUSeconds, &jobStats.MemorySeconds, &jobStats.InstanceSeconds, &jobStats.JobCount); err != nil {
+			log.Warning(err)
+			return nil, err
+		}
+
+		allJobStats = append(allJobStats, &jobStats)
+	}
+	return allJobStats, nil
+}
+
 func (pq *postgreSQLStore) SubscribeToJobStatus(jobID string) (<-chan Job, func()) {
 	span := opentracing.StartSpan("PG.SubscribeToJobStatus")
 	defer span.Finish()
