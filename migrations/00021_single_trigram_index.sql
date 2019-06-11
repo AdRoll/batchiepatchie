@@ -7,7 +7,7 @@ DROP INDEX trgm_idx_jobs_image;
 DROP INDEX trgm_idx_jobs_command_line;
 DROP INDEX trgm_idx_jobs_job_definition;
 
-CREATE INDEX trgm_idx_jobs ON jobs USING gin (
+CREATE INDEX CONCURRENTLY trgm_idx_jobs ON jobs USING gin (
     (job_id || job_name || job_queue || image || command_line || job_definition) gin_trgm_ops
 );
 
