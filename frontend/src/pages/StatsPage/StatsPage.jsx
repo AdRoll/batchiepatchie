@@ -76,6 +76,11 @@ const CHART_COLORS = [
     '#400009',
 ];
 
+const HUMANIZE_OPTS = {
+    largest: 2,
+    round: true
+};
+
 class StatsPage extends React.Component {
     static propTypes = {
         endDate: PropTypes.instanceOf(Date),
@@ -129,13 +134,9 @@ class StatsPage extends React.Component {
         const [
             chartData,
             tableData,
+            totalData,
             jobQueues
         ] = this.mapStats(stats);
-
-        const humanizeOpts = {
-            largest: 2,
-            round: true
-        };
 
         const timeBetween = (endDate.getTime() - startDate.getTime()) / 1000;
 
@@ -144,6 +145,16 @@ class StatsPage extends React.Component {
                 <div className='actions'>
                     <StatusSelector filterStatus={ (status) => ['SUCCEEDED', 'FAILED'].includes(status) } />
                     <QueueSelector />
+                    <label>
+                        Graph
+                        <select className='form-control metric-picker'>
+                            <option>Job Count</option>
+                            <option>Total Job Time</option>
+                            <option>Total vCPU Time</option>
+                            <option>Avg. vCPU</option>
+                            <option>Avg. Memory</option>
+                        </select>
+                    </label>
                     <label>
                         Start
                         <DateTime
@@ -207,7 +218,6 @@ class StatsPage extends React.Component {
                         </div>
                     </div>
                     <div className='row'>
-
                         <div className='col-md-12'>
                             <table className='table'>
                                 <thead>
@@ -222,6 +232,7 @@ class StatsPage extends React.Component {
                                         <th>Avg. Job Memory (GB)</th>
                                         <th>Avg. vCPUs Running (cores)</th>
                                         <th>Avg. Memory Running (GB)</th>
+                                        <th>Job Rate (/hour)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -230,23 +241,12 @@ class StatsPage extends React.Component {
                                         const statuses = Object.keys(tableData[jobQueue]).sort((a, b) => b.localeCompare(a));
                                         return statuses.map((status, statusIdx) => {
                                             const item = tableData[jobQueue][status];
-                                            return <tr>
-                                                <td>
-                                                    <div className='color-block' style={ { backgroundColor: color } } />
-                                                    { jobQueue }
-                                                </td>
-                                                <td><StatusFormatter value={ status } /></td>
-                                                <td>{ item.job_count }</td>
-                                                <td>{ humanizeDuration(item.instance_seconds * 1000, humanizeOpts) }</td>
-                                                <td>{ humanizeDuration(item.vcpu_seconds * 1000, humanizeOpts) }</td>
-                                                <td>{ humanizeDuration(item.instance_seconds * 1000 / item.job_count, humanizeOpts) }</td>
-                                                <td>{ (item.vcpu_seconds / item.instance_seconds).toFixed(1) }</td>
-                                                <td>{ (item.memory_seconds / item.instance_seconds / 1000).toFixed(1) }</td>
-                                                <td>{ (item.vcpu_seconds / timeBetween).toFixed(1) }</td>
-                                                <td>{ (item.memory_seconds / timeBetween / 1000).toFixed(1) }</td>
-                                            </tr>;
+                                            return this.getTableRow(jobQueue, color, timeBetween, item);
                                         });
                                     }) }
+
+                                    { /* Total row */ }
+                                    { stats.length > 0 && this.getTableRow('Total', '#000000', timeBetween, totalData) }
                                 </tbody>
                             </table>
                         </div>
@@ -263,15 +263,19 @@ class StatsPage extends React.Component {
     mapStats = (stats) => {
         const chartData = {};
         const tableData = {};
+        const totalData = {};
         const jobQueues = {};
         stats.forEach(stat => {
+            // Initialize job queue breakdown, queues are ordered by this metric
             if (!jobQueues[stat.job_queue])
                 jobQueues[stat.job_queue] = 0;
             jobQueues[stat.job_queue] += stat.vcpu_seconds;
 
+            // Initialize chart
             if (!chartData[stat.timestamp])
                 chartData[stat.timestamp] = { timestamp: stat.timestamp };
 
+            // Initialize table
             if (!tableData[stat.job_queue])
                 tableData[stat.job_queue] = {};
 
@@ -279,21 +283,27 @@ class StatsPage extends React.Component {
                 tableData[stat.job_queue][stat.status] = {};
 
             METRICS.forEach(metric => {
+                // Aggregate chart
                 const keyName = stat.job_queue + '_' + metric;
                 if (!chartData[stat.timestamp][keyName])
                     chartData[stat.timestamp][keyName] = 0;
                 chartData[stat.timestamp][keyName] += stat[metric];
 
-
+                // Aggregate table
                 if (!tableData[stat.job_queue][stat.status][metric])
                     tableData[stat.job_queue][stat.status][metric] = 0;
                 tableData[stat.job_queue][stat.status][metric] += stat[metric];
+
+                // Aggregate total
+                if (!totalData[metric])
+                    totalData[metric] = 0;
+                totalData[metric] += stat[metric];
             });
         });
 
         const chartDataFlat = Object.keys(chartData).sort().map(timestamp => chartData[timestamp]);
         const jobQueuesSorted = Object.keys(jobQueues).sort((a, b) => jobQueues[b] - jobQueues[a]);
-        return [chartDataFlat, tableData, jobQueuesSorted];
+        return [chartDataFlat, tableData, totalData, jobQueuesSorted];
     }
 
     timeFormatter = (timestamp) => {
@@ -318,6 +328,25 @@ class StatsPage extends React.Component {
             endDate: query.endDate ? moment.unix(query.endDate).toDate() : QUERY_PARAM_DEFAULTS.endDate,
         };
         this.props.setParams(queryParamsWithDefaults);
+    }
+
+    getTableRow = (label, color, timeBetween, item) => {
+        return <tr>
+            <td>
+                <div className='color-block' style={ { backgroundColor: color } } />
+                { label }
+            </td>
+            <td><StatusFormatter value={ status } /></td>
+            <td>{ item.job_count }</td>
+            <td>{ humanizeDuration(item.instance_seconds * 1000, HUMANIZE_OPTS) }</td>
+            <td>{ humanizeDuration(item.vcpu_seconds * 1000, HUMANIZE_OPTS) }</td>
+            <td>{ humanizeDuration(item.instance_seconds * 1000 / item.job_count, HUMANIZE_OPTS) }</td>
+            <td>{ (item.vcpu_seconds / item.instance_seconds).toFixed(1) }</td>
+            <td>{ (item.memory_seconds / item.instance_seconds / 1000).toFixed(1) }</td>
+            <td>{ (item.vcpu_seconds / timeBetween).toFixed(1) }</td>
+            <td>{ (item.memory_seconds / timeBetween / 1000).toFixed(1) }</td>
+            <td>{ (item.job_count / timeBetween * 3600).toFixed(1) }</td>
+        </tr>;
     }
 }
 

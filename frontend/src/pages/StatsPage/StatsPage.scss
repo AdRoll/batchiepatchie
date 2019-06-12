@@ -36,4 +36,14 @@
     td {
         vertical-align: middle
     }
+
+    tr:last-of-type {
+        font-weight: bold;
+    }
+
+    select.metric-picker {
+        margin-top: -7px;
+        margin-right: 0;
+        margin-left: 6px;
+    }
 }
