@@ -79,6 +79,11 @@ export const SORT_FIELDS = {
     creationTime: 'creationTime'
 };
 
+// Initial end date
+const startDate = new Date();
+startDate.setDate(startDate.getDate() - 7);
+const endDate = new Date();
+
 export const QUERY_PARAM_DEFAULTS = {
     page: 0,
     q: '',
@@ -86,12 +91,10 @@ export const QUERY_PARAM_DEFAULTS = {
     selectedQueue: '',
     selectedStatus: '',
     sortDirection: SORT_DIRECTIONS.DESC,
-    sortColumn: SORT_FIELDS.startTime
+    sortColumn: SORT_FIELDS.startTime,
+    startDate,
+    endDate,
 };
-
-// Initial end date
-const startDate = new Date();
-startDate.setDate(startDate.getDate() - 7);
 
 // Initial state
 const initialState = {
@@ -105,7 +108,7 @@ const initialState = {
     selectedQueue: 'all',
     selectedStatus: 'all',
     startDate,
-    endDate: new Date(),
+    endDate,
     sortDirection: SORT_DIRECTIONS.DESC,
     sortColumn: SORT_FIELDS.startTime,
     stats: []
@@ -352,6 +355,12 @@ export function setParams(params) {
 
         if (params.selectedIds !== undefined)
             dispatch(setSelectedIds(params.selectedIds));
+
+        if (params.startDate !== undefined)
+            dispatch(setStartDate(params.startDate));
+
+        if (params.endDate !== undefined)
+            dispatch(setEndDate(params.endDate));
     };
 };
 
@@ -370,13 +379,16 @@ export function updateJobsQueryParams() {
                     queryParams[q] = stateIds;
                 }
             } else if (state.job[q] !== QUERY_PARAM_DEFAULTS[q]) {
-                queryParams[q] = state.job[q];
+                if (q === 'startDate' || q === 'endDate')
+                    queryParams[q] = (state.job[q].getTime() / 1000).toFixed(0);
+                else
+                    queryParams[q] = state.job[q];
             }
         });
 
         const queryParamsStr = queryString.stringify(queryParams);
         const queryParamsWithQuestion = queryParamsStr.length > 0 ? `?${queryParamsStr}` : '' ;
-        const newUrl = process.env.BASE_URL + `/${queryParamsWithQuestion}`;
+        const newUrl = process.env.BASE_URL + state.routing.locationBeforeTransitions.pathname + `${queryParamsWithQuestion}`;
 
         // Push new state if different
         if (queryParamsWithQuestion !== window.location.search) {

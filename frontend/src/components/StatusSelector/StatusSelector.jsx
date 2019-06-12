@@ -7,15 +7,18 @@ import {
 import Select from 'react-select';
 import './StatusSelector.scss';
 
-const STATUS_OPTIONS = STATUS_ORDER.map(s => ({ label: s, value: s }));
-
 class StatusSelector extends React.Component {
     static propTypes = {
         selectedStatus: PropTypes.string.isRequired,
-        setSelectedStatus: PropTypes.func.isRequired
+        setSelectedStatus: PropTypes.func.isRequired,
+        filterStatus: PropTypes.func,
     };
 
     render() {
+        const statusOrder = this.props.filterStatus ?
+            STATUS_ORDER.filter(this.props.filterStatus) :
+            STATUS_ORDER;
+        const statusOptions = statusOrder.map(s => ({ label: s, value: s }));
 
         return (
             <div className='status-selector'>
@@ -25,7 +28,7 @@ class StatusSelector extends React.Component {
                     disabled={ false }
                     multi
                     onChange={ this.props.setSelectedStatus }
-                    options={ STATUS_OPTIONS }
+                    options={ statusOptions }
                     placeholder='Status'
                     value={ this.props.selectedStatus }
                     simpleValue

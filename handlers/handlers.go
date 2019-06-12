@@ -396,7 +396,6 @@ func (s *Server) JobStats(c echo.Context) error {
 	c.QueryParams()
 	queuesStr := c.QueryParam("queue")
 	statusStr := c.QueryParam("status")
-	breakdown := c.QueryParam("breakdown")
 	start, start_err := strconv.ParseInt(c.QueryParam("start"), 10, 64)
 	end, end_err := strconv.ParseInt(c.QueryParam("end"), 10, 64)
 	var duration int64 = end - start
@@ -419,7 +418,7 @@ func (s *Server) JobStats(c echo.Context) error {
 	// The interval used by the query to break stats down by
 	var interval int64
 	if duration >= 30 * daySeconds {
-		interval = 7 * daySeconds
+		interval = daySeconds
 	} else if duration >= 3 * daySeconds {
 		interval = 6 * hourSeconds
 	} else if duration >= 4 * hourSeconds {
@@ -441,12 +440,11 @@ func (s *Server) JobStats(c echo.Context) error {
 		status = strings.Split(statusStr, ",")
 	}
 	results, err := s.Storage.JobStats(&jobs.JobStatsOptions{
-		Queues:    queues,
-		Status:    status,
-		Breakdown: breakdown,
-		Interval:  interval,
-		Start:     start,
-		End:       end,
+		Queues:   queues,
+		Status:   status,
+		Interval: interval,
+		Start:    start,
+		End:      end,
 	})
 
 	if err != nil {

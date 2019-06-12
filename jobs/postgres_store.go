@@ -1240,11 +1240,46 @@ func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) 
 		AND last_updated < TO_TIMESTAMP($3) AT TIME ZONE 'UTC'
 		AND stopped_at IS NOT NULL
 		AND run_started_at IS NOT NULL
+	`
+
+	args := make([]interface{}, 0)
+	args = append(args, opts.Interval)
+	args = append(args, opts.Start)
+	args = append(args, opts.End)
+
+	if len(opts.Status) > 0 {
+		query += " AND status IN ("
+
+		for i, item := range opts.Status {
+			args = append(args, item)
+			query += "$" + strconv.Itoa(len(args))
+			if i < len(opts.Status)-1 {
+				query += ","
+			}
+		}
+		query += ") "
+	}
+
+
+	if len(opts.Queues) > 0 {
+		query += " AND job_queue IN ("
+
+		for i, item := range opts.Queues {
+			args = append(args, item)
+			query += "$" + strconv.Itoa(len(args))
+			if i < len(opts.Queues)-1 {
+				query += ","
+			}
+		}
+		query += ") "
+	}
+
+	query += `
 		GROUP BY job_queue, status, interval_alias
 		ORDER BY 1 ASC, 2 ASC, 3 DESC, 4 DESC, 5 DESC
 	`
 
-	rows, err := pq.connection.Query(query, opts.Interval, opts.Start, opts.End)
+	rows, err := pq.connection.Query(query, args...)
 	if err != nil {
 		log.Warning("Cannot find timed out jobs from database: ", err)
 		return nil, err

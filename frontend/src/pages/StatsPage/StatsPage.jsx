@@ -4,6 +4,10 @@ import {
     fetchStatsPage,
     setStartDate,
     setEndDate,
+    setParams,
+    syncJobQueues,
+    updateJobsQueryParams,
+    QUERY_PARAM_DEFAULTS,
     STATUS_ORDER,
 } from 'stores/job';
 import { STATS } from 'stores/status';
@@ -76,27 +80,36 @@ class StatsPage extends React.Component {
     static propTypes = {
         endDate: PropTypes.instanceOf(Date),
         fetchStatsPage: PropTypes.func.isRequired,
+        updateJobsQueryParams: PropTypes.func.isRequired,
+        routing: PropTypes.object.isRequired,
         startDate: PropTypes.instanceOf(Date),
         stats: PropTypes.array.isRequired,
         status: PropTypes.object.isRequired,
         setStartDate: PropTypes.func.isRequired,
         setEndDate: PropTypes.func.isRequired,
+        syncJobQueues: PropTypes.func.isRequired,
+        selectedQueue: PropTypes.string,
+        selectedStatus: PropTypes.string,
     };
 
     componentDidMount() {
+        this.loadStateFromQueryParams();
         this.props.fetchStatsPage();
+        this.props.syncJobQueues();
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.startDate.getTime() !== prevProps.startDate.getTime() ||
-            this.props.endDate.getTime() !== prevProps.endDate.getTime()) {
+            this.props.endDate.getTime() !== prevProps.endDate.getTime() ||
+            this.props.selectedQueue !== prevProps.selectedQueue ||
+            this.props.selectedStatus !== prevProps.selectedStatus) {
             this.props.fetchStatsPage();
+            this.props.updateJobsQueryParams();
         }
     }
 
     render() {
         const {
-            queues,
             stats,
             status,
             startDate,
@@ -112,9 +125,6 @@ class StatsPage extends React.Component {
                 </div>
             );
         }
-
-        const statusOptions = STATUS_ORDER.map(s => ({ label: s, value: s }));
-        const queuesOptions = queues.map(q => ({ label: q, value: q }));
 
         const [
             chartData,
@@ -132,7 +142,7 @@ class StatsPage extends React.Component {
         return (
             <div className='stats-page'>
                 <div className='actions'>
-                    <StatusSelector />
+                    <StatusSelector filterStatus={ (status) => ['SUCCEEDED', 'FAILED'].includes(status) } />
                     <QueueSelector />
                     <label>
                         Start
@@ -156,7 +166,7 @@ class StatsPage extends React.Component {
                 <h2>Stats</h2>
                 <div className='clear' />
 
-                { !status.loading && <div className='container-fluid'>
+                <div className='container-fluid'>
                     <div className='row'>
                         <div className='col-md-12 area-chart'>
                             <ResponsiveContainer width='100%' height={ 300 }>
@@ -188,6 +198,7 @@ class StatsPage extends React.Component {
                                             stackId='1'
                                             fill={ color }
                                             stroke={ color }
+                                            isAnimationActive={ false }
                                         />
                                     }) }
 
@@ -240,7 +251,7 @@ class StatsPage extends React.Component {
                             </table>
                         </div>
                     </div>
-                </div> }
+                </div>
             </div>
         );
     }
@@ -296,11 +307,25 @@ class StatsPage extends React.Component {
     formatAsHours = (seconds) => {
         return (seconds / 3600.0).toFixed(1);
     }
+
+    // Load query params into store, resetting any values with defaults
+    loadStateFromQueryParams = () => {
+        const query = this.props.routing.locationBeforeTransitions.query;
+        const queryParamsWithDefaults = {
+            ...QUERY_PARAM_DEFAULTS,
+            ...query,
+            startDate: query.startDate ? moment.unix(query.startDate).toDate() : QUERY_PARAM_DEFAULTS.startDate,
+            endDate: query.endDate ? moment.unix(query.endDate).toDate() : QUERY_PARAM_DEFAULTS.endDate,
+        };
+        this.props.setParams(queryParamsWithDefaults);
+    }
 }
 
 const mapStateToProps = state => ({
     endDate: state.job.endDate,
-    queues: state.job.queues,
+    routing: state.routing,
+    selectedQueue: state.job.selectedQueue,
+    selectedStatus: state.job.selectedStatus,
     startDate: state.job.startDate,
     stats: state.job.stats,
     status: state.status[STATS],
@@ -308,8 +333,11 @@ const mapStateToProps = state => ({
 
 const actions = {
     fetchStatsPage,
+    updateJobsQueryParams,
     setStartDate,
-    setEndDate
+    setEndDate,
+    syncJobQueues,
+    setParams,
 };
 
 export default connect(mapStateToProps, actions)(StatsPage);

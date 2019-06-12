@@ -73,7 +73,6 @@ type Options struct {
 type JobStatsOptions struct {
 	Queues    []string
 	Status    []string
-	Breakdown string
 	Interval  int64
 	Start     int64
 	End       int64
