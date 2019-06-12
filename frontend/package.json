@@ -8,6 +8,7 @@
     "bootswatch": "4.1.1",
     "classnames": "2.2.5",
     "font-awesome": "4.7.0",
+    "humanize-duration": "3.18.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
     "numeral": "2.0.6",

@@ -81,6 +81,7 @@ type JobStatsOptions struct {
 
 type JobStats struct {
 	JobQueue        string  `json:"job_queue"`
+	Status          string  `json:"status"`
 	Timestamp       float64 `json:"timestamp"`
 	VCPUSeconds     float64 `json:"vcpu_seconds"`
 	MemorySeconds   float64 `json:"memory_seconds"`

@@ -333,7 +333,7 @@ export function setJobQueues(job_queues) {
     };
 }
 
-export function setAndFetch(params) {
+export function setParams(params) {
     return dispatch => {
         if (params.sortColumn && params.sortDirection)
             dispatch(setSortParams(params.sortColumn, params.sortDirection));
@@ -352,9 +352,6 @@ export function setAndFetch(params) {
 
         if (params.selectedIds !== undefined)
             dispatch(setSelectedIds(params.selectedIds));
-
-        dispatch(updateJobsQueryParams());
-        return dispatch(fetchJobsPage());
     };
 };
 

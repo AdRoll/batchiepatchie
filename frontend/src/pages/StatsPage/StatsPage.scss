@@ -7,6 +7,14 @@
         float: right;
         margin-bottom: 12px;
 
+        select {
+            float: right;
+            margin-right: 12px;
+            height: 42px;
+            line-height: 42px;
+            width: auto;
+        }
+
         // react-datetime
         .rdt {
             display: inline-block;
@@ -16,5 +24,16 @@
                 margin-left: -78px;
             }
         }
+    }
+
+    .color-block {
+        height: 9px;
+        width: 9px;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    td {
+        vertical-align: middle
     }
 }

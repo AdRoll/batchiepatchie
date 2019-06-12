@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import debounce from 'utils/debounce';
 import {
-    setAndFetch,
+    setParams,
     setLocationToSearch,
     setSearch
 } from 'stores/job';
@@ -28,7 +28,7 @@ class Search extends React.Component {
     static propTypes = {
         loading: PropTypes.bool.isRequired,
         q: PropTypes.string.isRequired,
-        setAndFetch: PropTypes.func.isRequired,
+        setParams: PropTypes.func.isRequired,
         setSearch: PropTypes.func.isRequired,
         statusKey: PropTypes.string.isRequired,
     };
@@ -74,7 +74,7 @@ class Search extends React.Component {
     }
 
     fetchJobsPage = debounce(() => {
-        this.props.setAndFetch({q: this.props.q});
+        this.props.setParams({q: this.props.q});
     }, 300)
 
     handleKeyPress = (e) => {
@@ -94,7 +94,7 @@ const mapStateToProps = state => {
 };
 
 const actions = {
-    setAndFetch,
+    setParams,
     setLocationToSearch,
     setSearch
 };

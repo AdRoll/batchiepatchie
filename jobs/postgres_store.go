@@ -1229,17 +1229,18 @@ func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) 
 	query := `
 		SELECT
 			job_queue,
+			status,
 			FLOOR((EXTRACT(EPOCH FROM last_updated) / $1)) * $1 AS interval_alias,
-			SUM(vcpus * EXTRACT(EPOCH FROM (stopped_at - run_started_at))) vcpu_seconds,
-			SUM(memory * EXTRACT(EPOCH FROM (stopped_at - run_started_at))) memory_seconds,
-			SUM(EXTRACT(EPOCH FROM (stopped_at - run_started_at))) instance_seconds,
+			GREATEST(SUM(vcpus * EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) vcpu_seconds,
+			GREATEST(SUM(memory * EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) memory_seconds,
+			GREATEST(SUM(EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) instance_seconds,
 			COUNT(*) job_count
 		FROM jobs
 		WHERE last_updated > TO_TIMESTAMP($2) AT TIME ZONE 'UTC'
 		AND last_updated < TO_TIMESTAMP($3) AT TIME ZONE 'UTC'
 		AND stopped_at IS NOT NULL
 		AND run_started_at IS NOT NULL
-		GROUP BY job_queue, interval_alias
+		GROUP BY job_queue, status, interval_alias
 		ORDER BY 1 ASC, 2 ASC, 3 DESC, 4 DESC, 5 DESC
 	`
 
@@ -1253,7 +1254,7 @@ func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) 
 	allJobStats := make([]*JobStats, 0)
 	for rows.Next() {
 		var jobStats JobStats
-		if err := rows.Scan(&jobStats.JobQueue, &jobStats.Timestamp, &jobStats.VCPUSeconds, &jobStats.MemorySeconds, &jobStats.InstanceSeconds, &jobStats.JobCount); err != nil {
+		if err := rows.Scan(&jobStats.JobQueue, &jobStats.Status, &jobStats.Timestamp, &jobStats.VCPUSeconds, &jobStats.MemorySeconds, &jobStats.InstanceSeconds, &jobStats.JobCount); err != nil {
 			log.Warning(err)
 			return nil, err
 		}
