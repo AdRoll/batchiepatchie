@@ -26,6 +26,8 @@ export const SET_SELECTED_STATUS = 'SET_SELECTED_STATUS';
 export const SET_SORT_PARAMS = 'SET_SORT_PARAMS';
 export const SET_STATS = 'SET_STATS';
 export const SET_JOB_QUEUES = 'SET_JOB_QUEUES';
+export const SET_START_DATE = 'SET_START_DATE';
+export const SET_END_DATE = 'SET_END_DATE';
 
 // Constants
 export const STATUSES = {
@@ -87,6 +89,10 @@ export const QUERY_PARAM_DEFAULTS = {
     sortColumn: SORT_FIELDS.startTime
 };
 
+// Initial end date
+const startDate = new Date();
+startDate.setDate(startDate.getDate() - 7);
+
 // Initial state
 const initialState = {
     jobs: [],
@@ -98,9 +104,11 @@ const initialState = {
     selectedIds: [],
     selectedQueue: 'all',
     selectedStatus: 'all',
+    startDate,
+    endDate: new Date(),
     sortDirection: SORT_DIRECTIONS.DESC,
     sortColumn: SORT_FIELDS.startTime,
-    stats: {}
+    stats: []
 };
 
 const actions = {};
@@ -211,7 +219,21 @@ actions[SET_JOB_QUEUES] = (state, { payload }) => {
         ...state,
         queues: payload
     };
-}
+};
+
+actions[SET_START_DATE] = (state, { payload }) => {
+    return {
+        ...state,
+        startDate: payload
+    };
+};
+
+actions[SET_END_DATE] = (state, { payload }) => {
+    return {
+        ...state,
+        endDate: payload
+    };
+};
 
 // Action Creators
 export function setJob(job) {
@@ -280,6 +302,20 @@ export function setSortParams(sortColumn, sortDirection) {
             sortColumn,
             sortDirection
         }
+    };
+};
+
+export function setStartDate(startDate) {
+    return {
+        type: SET_START_DATE,
+        payload: startDate
+    };
+};
+
+export function setEndDate(endDate) {
+    return {
+        type: SET_END_DATE,
+        payload: endDate
     };
 };
 
@@ -403,7 +439,22 @@ export function fetchJobs() {
 };
 
 export function fetchStats() {
-    return (dispatch) => JobsApi.getStats();
+    return (dispatch, getState) => {
+        const state = getState();
+        const params = {
+            start: moment(state.job.startDate).format('X'),
+            end: moment(state.job.endDate).format('X'),
+        };
+
+        if (state.job.selectedQueue !== 'all') {
+            params.queue = state.job.selectedQueue;
+        }
+
+        if (state.job.selectedStatus !== 'all') {
+            params.status = state.job.selectedStatus;
+        }
+        return JobsApi.getStats(params);
+    };
 };
 
 export function fetchJobPage(id) {

@@ -13,6 +13,10 @@ const pages = [
         name: 'Job queues',
         path: process.env.BASE_URL + '/job_queues'
     },
+    {
+        name: 'Stats',
+        path: process.env.BASE_URL + '/stats'
+    },
 ];
 
 function Menu({ path }) {

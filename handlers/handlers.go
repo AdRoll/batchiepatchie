@@ -421,7 +421,7 @@ func (s *Server) JobStats(c echo.Context) error {
 	if duration >= 30 * daySeconds {
 		interval = 7 * daySeconds
 	} else if duration >= 3 * daySeconds {
-		interval = daySeconds
+		interval = 6 * hourSeconds
 	} else if duration >= 4 * hourSeconds {
 		interval = hourSeconds
 	} else if duration >= hourSeconds {

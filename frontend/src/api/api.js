@@ -28,8 +28,8 @@ class API {
         return window.fetch(this.joinUrls(`jobs/${id}/logs?format=text`), { 'method': 'GET' }).then(this.checkStatus).then(to_text).then(parse_text);
     }
 
-    getStats() {
-        return this.get(this.joinUrls('stats'));
+    getStats(params) {
+        return this.get(this.joinUrls('jobs/stats', params));
     }
 
     getJobQueues() {

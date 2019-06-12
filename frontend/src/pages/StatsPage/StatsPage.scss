@@ -1,3 +1,20 @@
 .stats-page {
+    label {
+        margin-left: 12px;
+    }
 
+    .actions {
+        float: right;
+        margin-bottom: 12px;
+
+        // react-datetime
+        .rdt {
+            display: inline-block;
+            margin-left: 6px;
+
+            .rdtPicker {
+                margin-left: -78px;
+            }
+        }
+    }
 }
