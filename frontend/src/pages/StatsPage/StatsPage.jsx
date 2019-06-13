@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
     fetchStatsPage,
     setEndDate,
+    setGraphType,
     setParams,
     setStartDate,
     setStatsMetric,
@@ -21,6 +22,8 @@ import DateTime from 'react-datetime';
 import {
     Area,
     AreaChart,
+    Bar,
+    BarChart,
     CartesianGrid,
     ResponsiveContainer,
     Tooltip,
@@ -79,18 +82,20 @@ class StatsPage extends React.Component {
             this.props.updateJobsQueryParams();
         }
 
-        if (this.props.statsMetric !== prevProps.statsMetric) {
+        if (this.props.statsMetric !== prevProps.statsMetric ||
+            this.props.graphType !== prevProps.graphType) {
             this.props.updateJobsQueryParams();
         }
     }
 
     render() {
         const {
-            stats,
-            status,
-            startDate,
             endDate,
+            graphType,
+            startDate,
+            stats,
             statsMetric,
+            status,
         } = this.props;
 
         if (!status.loading && status.error) {
@@ -111,12 +116,21 @@ class StatsPage extends React.Component {
         ] = this.mapStats(stats);
 
         const timeBetween = (endDate.getTime() - startDate.getTime()) / 1000;
+        const Chart = graphType === 'area' ? AreaChart : BarChart;
+        const ChartItem = graphType === 'area' ? Area : Bar;
 
         return (
             <div className='stats-page'>
                 <div className='actions'>
                     <StatusSelector statusOrder={ ['SUCCEEDED', 'FAILED'] } />
                     <QueueSelector />
+                    <label>
+                        Graph
+                        <select className='form-control metric-picker' value={ graphType } onChange={ this.setGraphType }>
+                            <option value='area'>Stacked Area</option>
+                            <option value='bar'>Stacked Bar</option>
+                        </select>
+                    </label>
                     <label>
                         Metric
                         <select className='form-control metric-picker' value={ statsMetric } onChange={ this.setStatsMetric }>
@@ -151,7 +165,7 @@ class StatsPage extends React.Component {
                     <div className='row'>
                         <div className='col-md-12 area-chart'>
                             <ResponsiveContainer width='100%' height={ 300 }>
-                                <AreaChart
+                                <Chart
                                     data={ chartData }
                                     margin={ {
                                         top: 10,
@@ -171,7 +185,7 @@ class StatsPage extends React.Component {
                                     { jobQueues.map(jobQueue => {
                                         const color = getChartColor(jobQueue);
                                         const key = this.getLookupKey(jobQueue, statsMetric);
-                                        return <Area
+                                        return <ChartItem
                                             type='monotone'
                                             key={ key }
                                             dataKey={ key }
@@ -183,7 +197,7 @@ class StatsPage extends React.Component {
                                         />
                                     }) }
 
-                                </AreaChart>
+                                </Chart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -332,9 +346,12 @@ class StatsPage extends React.Component {
         </tr>;
     }
 
-
     setStatsMetric = (event) => {
         this.props.setStatsMetric(event.target.value);
+    }
+
+    setGraphType = (event) => {
+        this.props.setGraphType(event.target.value);
     }
 
     getLookupKey = (queue, metric) => `${queue}_${metric}`;
@@ -342,6 +359,7 @@ class StatsPage extends React.Component {
 
 const mapStateToProps = state => ({
     endDate: state.job.endDate,
+    graphType: state.job.graphType,
     routing: state.routing,
     selectedQueue: state.job.selectedQueue,
     selectedStatus: state.job.selectedStatus,
@@ -354,6 +372,7 @@ const mapStateToProps = state => ({
 const actions = {
     fetchStatsPage,
     setEndDate,
+    setGraphType,
     setParams,
     setStartDate,
     setStatsMetric,

@@ -15,6 +15,7 @@ import queryString from 'query-string';
 
 // Action names
 export const SET_END_DATE = 'SET_END_DATE';
+export const SET_GRAPH_TYPE = 'SET_GRAPH_TYPE';
 export const SET_JOB = 'SET_JOB';
 export const SET_JOB_QUEUES = 'SET_JOB_QUEUES';
 export const SET_JOBS = 'SET_JOBS';
@@ -112,6 +113,7 @@ const endDate = new Date();
 
 export const QUERY_PARAM_DEFAULTS = {
     endDate,
+    graphType: 'area',
     page: 0,
     q: '',
     selectedIds: [],
@@ -126,6 +128,7 @@ export const QUERY_PARAM_DEFAULTS = {
 // Initial state
 const initialState = {
     endDate,
+    graphType: 'area',
     jobs: [],
     jobsById: {},
     logsById: {},
@@ -273,6 +276,13 @@ actions[SET_STATS_METRIC] = (state, { payload }) => {
     };
 };
 
+actions[SET_GRAPH_TYPE] = (state, { payload }) => {
+    return {
+        ...state,
+        graphType: payload
+    };
+};
+
 // Action Creators
 export function setJob(job) {
     return {
@@ -378,6 +388,13 @@ export function setStatsMetric(stats) {
     };
 };
 
+export function setGraphType(graphType) {
+    return {
+        type: SET_GRAPH_TYPE,
+        payload: graphType
+    };
+};
+
 export function setParams(params) {
     return dispatch => {
         if (params.sortColumn && params.sortDirection)
@@ -406,6 +423,9 @@ export function setParams(params) {
 
         if (params.statsMetric !== undefined)
             dispatch(setStatsMetric(params.statsMetric));
+
+        if (params.graphType !== undefined)
+            dispatch(setGraphType(params.graphType));
     };
 };
 
