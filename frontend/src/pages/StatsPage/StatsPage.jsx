@@ -289,9 +289,8 @@ class StatsPage extends React.Component {
             const avgMemoryKey = this.getLookupKey(stat.job_queue, STATS_METRICS.avg_memory);
             const vcpuSecondsKey = this.getLookupKey(stat.job_queue, STATS_METRICS.vcpu_seconds);
             const memorySecondsKey = this.getLookupKey(stat.job_queue, STATS_METRICS.memory_seconds);
-            const instanceSecondsKey = this.getLookupKey(stat.job_queue, STATS_METRICS.instance_seconds);
-            chartData[stat.timestamp][avgVCPUKey] = chartData[stat.timestamp][vcpuSecondsKey] / chartData[stat.timestamp][instanceSecondsKey];
-            chartData[stat.timestamp][avgMemoryKey] = chartData[stat.timestamp][memorySecondsKey] / chartData[stat.timestamp][instanceSecondsKey];
+            chartData[stat.timestamp][avgVCPUKey] = chartData[stat.timestamp][vcpuSecondsKey] / stat.interval;
+            chartData[stat.timestamp][avgMemoryKey] = chartData[stat.timestamp][memorySecondsKey] / stat.interval;
         });
 
         const chartDataFlat = Object.keys(chartData).sort().map(timestamp => {

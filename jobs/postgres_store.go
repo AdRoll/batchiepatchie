@@ -1290,6 +1290,7 @@ func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) 
 			return nil, err
 		}
 
+		jobStats.Interval = opts.Interval
 		allJobStats = append(allJobStats, &jobStats)
 	}
 	return allJobStats, nil

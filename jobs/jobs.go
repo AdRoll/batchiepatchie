@@ -86,6 +86,7 @@ type JobStats struct {
 	MemorySeconds   float64 `json:"memory_seconds"`
 	InstanceSeconds float64 `json:"instance_seconds"`
 	JobCount        int     `json:"job_count"`
+	Interval        int64   `json:"interval"`
 }
 
 // KillTaskID is a struct to handle JSON request to kill a task
