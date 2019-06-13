@@ -14,20 +14,21 @@ import { browserHistory } from 'react-router';
 import queryString from 'query-string';
 
 // Action names
+export const SET_END_DATE = 'SET_END_DATE';
 export const SET_JOB = 'SET_JOB';
+export const SET_JOB_QUEUES = 'SET_JOB_QUEUES';
 export const SET_JOBS = 'SET_JOBS';
-export const SET_QUEUES = 'SET_QUEUES';
 export const SET_LOGS = 'SET_LOGS';
 export const SET_PAGE = 'SET_PAGE';
+export const SET_QUEUES = 'SET_QUEUES';
 export const SET_SEARCH = 'SET_SEARCH';
 export const SET_SELECTED_IDS = 'SET_SELECTED_IDS';
 export const SET_SELECTED_QUEUE = 'SET_SELECTED_QUEUE';
 export const SET_SELECTED_STATUS = 'SET_SELECTED_STATUS';
 export const SET_SORT_PARAMS = 'SET_SORT_PARAMS';
-export const SET_STATS = 'SET_STATS';
-export const SET_JOB_QUEUES = 'SET_JOB_QUEUES';
 export const SET_START_DATE = 'SET_START_DATE';
-export const SET_END_DATE = 'SET_END_DATE';
+export const SET_STATS = 'SET_STATS';
+export const SET_STATS_METRIC = 'SET_STATS_METRIC';
 
 // Constants
 export const STATUSES = {
@@ -79,25 +80,52 @@ export const SORT_FIELDS = {
     creationTime: 'creationTime'
 };
 
+export const STATS_METRICS = {
+    avg_vcpu: 'avg_vcpu',
+    avg_memory: 'avg_memory',
+    instance_seconds: 'instance_seconds',
+    vcpu_seconds: 'vcpu_seconds',
+    memory_seconds: 'memory_seconds',
+    job_count: 'job_count',
+};
+
+export const STATS_METRICS_LABELS = {
+    avg_vcpu: 'Avg. vCPU Running',
+    avg_memory: 'Avg. Memory Running',
+    instance_seconds: 'Total Job Time',
+    vcpu_seconds: 'Total vCPU Time',
+    job_count: 'Job Count',
+};
+
+export const STATS_METRICS_ORDER = [
+    STATS_METRICS.avg_vcpu,
+    STATS_METRICS.avg_memory,
+    STATS_METRICS.instance_seconds,
+    STATS_METRICS.vcpu_seconds,
+    STATS_METRICS.job_count,
+];
+
 // Initial end date
 const startDate = new Date();
 startDate.setDate(startDate.getDate() - 7);
 const endDate = new Date();
 
 export const QUERY_PARAM_DEFAULTS = {
+    endDate,
     page: 0,
     q: '',
     selectedIds: [],
     selectedQueue: '',
     selectedStatus: '',
-    sortDirection: SORT_DIRECTIONS.DESC,
     sortColumn: SORT_FIELDS.startTime,
+    sortDirection: SORT_DIRECTIONS.DESC,
     startDate,
-    endDate,
+    statsMetric: STATS_METRICS.avg_vcpu,
 };
 
 // Initial state
 const initialState = {
+    endDate,
     jobs: [],
     jobsById: {},
     logsById: {},
@@ -107,11 +135,11 @@ const initialState = {
     selectedIds: [],
     selectedQueue: 'all',
     selectedStatus: 'all',
-    startDate,
-    endDate,
-    sortDirection: SORT_DIRECTIONS.DESC,
     sortColumn: SORT_FIELDS.startTime,
-    stats: []
+    sortDirection: SORT_DIRECTIONS.DESC,
+    startDate,
+    stats: [],
+    statsMetric: STATS_METRICS.avg_vcpu,
 };
 
 const actions = {};
@@ -238,6 +266,13 @@ actions[SET_END_DATE] = (state, { payload }) => {
     };
 };
 
+actions[SET_STATS_METRIC] = (state, { payload }) => {
+    return {
+        ...state,
+        statsMetric: payload
+    };
+};
+
 // Action Creators
 export function setJob(job) {
     return {
@@ -334,7 +369,14 @@ export function setJobQueues(job_queues) {
         type: SET_JOB_QUEUES,
         payload: job_queues
     };
-}
+};
+
+export function setStatsMetric(stats) {
+    return {
+        type: SET_STATS_METRIC,
+        payload: stats
+    };
+};
 
 export function setParams(params) {
     return dispatch => {
@@ -361,6 +403,9 @@ export function setParams(params) {
 
         if (params.endDate !== undefined)
             dispatch(setEndDate(params.endDate));
+
+        if (params.statsMetric !== undefined)
+            dispatch(setStatsMetric(params.statsMetric));
     };
 };
 

@@ -11,13 +11,11 @@ class StatusSelector extends React.Component {
     static propTypes = {
         selectedStatus: PropTypes.string.isRequired,
         setSelectedStatus: PropTypes.func.isRequired,
-        filterStatus: PropTypes.func,
+        statusOrder: PropTypes.array,
     };
 
     render() {
-        const statusOrder = this.props.filterStatus ?
-            STATUS_ORDER.filter(this.props.filterStatus) :
-            STATUS_ORDER;
+        const statusOrder = this.props.statusOrder || STATUS_ORDER;
         const statusOptions = statusOrder.map(s => ({ label: s, value: s }));
 
         return (

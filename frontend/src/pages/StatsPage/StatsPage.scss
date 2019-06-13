@@ -34,7 +34,12 @@
     }
 
     td {
-        vertical-align: middle
+        vertical-align: middle;
+
+
+        .status-column {
+            width: 105px;
+        }
     }
 
     tr:last-of-type {

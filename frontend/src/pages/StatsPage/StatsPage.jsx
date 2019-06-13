@@ -2,13 +2,17 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
     fetchStatsPage,
-    setStartDate,
     setEndDate,
     setParams,
+    setStartDate,
+    setStatsMetric,
     syncJobQueues,
     updateJobsQueryParams,
     QUERY_PARAM_DEFAULTS,
     STATUS_ORDER,
+    STATS_METRICS,
+    STATS_METRICS_LABELS,
+    STATS_METRICS_ORDER,
 } from 'stores/job';
 import { STATS } from 'stores/status';
 import moment from 'moment';
@@ -18,7 +22,6 @@ import {
     Area,
     AreaChart,
     CartesianGrid,
-    Legend,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -27,6 +30,7 @@ import {
 import QueueSelector from 'components/QueueSelector/QueueSelector';
 import StatusFormatter from 'components/StatusFormatter/StatusFormatter';
 import StatusSelector from 'components/StatusSelector/StatusSelector';
+import getChartColor from 'utils/getChartColor';
 import './StatsPage.scss';
 import 'react-datetime/css/react-datetime.css';
 
@@ -37,43 +41,6 @@ const METRICS = [
     'memory_seconds',
     'instance_seconds',
     'job_count',
-];
-const CHART_COLORS = [
-    '#FF0000',
-    '#7F0000',
-    '#FFA280',
-    '#806C60',
-    '#FF8800',
-    '#FFE1BF',
-    '#996600',
-    '#FFCC00',
-    '#66644D',
-    '#4C4700',
-    '#EEFF00',
-    '#FBFFBF',
-    '#66FF00',
-    '#7DB359',
-    '#8FBFA3',
-    '#005930',
-    '#00FFAA',
-    '#00EEFF',
-    '#003C40',
-    '#00AAFF',
-    '#738C99',
-    '#004480',
-    '#0066FF',
-    '#0000FF',
-    '#0000BF',
-    '#1A1966',
-    '#C8BFFF',
-    '#9559B3',
-    '#CC00FF',
-    '#590047',
-    '#FF00AA',
-    '#FFBFEA',
-    '#A65369',
-    '#FF4059',
-    '#400009',
 ];
 
 const HUMANIZE_OPTS = {
@@ -95,11 +62,11 @@ class StatsPage extends React.Component {
         syncJobQueues: PropTypes.func.isRequired,
         selectedQueue: PropTypes.string,
         selectedStatus: PropTypes.string,
+        statsMetric: PropTypes.string.isRequired,
     };
 
     componentDidMount() {
         this.loadStateFromQueryParams();
-        this.props.fetchStatsPage();
         this.props.syncJobQueues();
     }
 
@@ -111,6 +78,10 @@ class StatsPage extends React.Component {
             this.props.fetchStatsPage();
             this.props.updateJobsQueryParams();
         }
+
+        if (this.props.statsMetric !== prevProps.statsMetric) {
+            this.props.updateJobsQueryParams();
+        }
     }
 
     render() {
@@ -119,6 +90,7 @@ class StatsPage extends React.Component {
             status,
             startDate,
             endDate,
+            statsMetric,
         } = this.props;
 
         if (!status.loading && status.error) {
@@ -143,16 +115,14 @@ class StatsPage extends React.Component {
         return (
             <div className='stats-page'>
                 <div className='actions'>
-                    <StatusSelector filterStatus={ (status) => ['SUCCEEDED', 'FAILED'].includes(status) } />
+                    <StatusSelector statusOrder={ ['SUCCEEDED', 'FAILED'] } />
                     <QueueSelector />
                     <label>
-                        Graph
-                        <select className='form-control metric-picker'>
-                            <option>Job Count</option>
-                            <option>Total Job Time</option>
-                            <option>Total vCPU Time</option>
-                            <option>Avg. vCPU</option>
-                            <option>Avg. Memory</option>
+                        Metric
+                        <select className='form-control metric-picker' value={ statsMetric } onChange={ this.setStatsMetric }>
+                            { STATS_METRICS_ORDER.map(metric => <option key={ metric } value={ metric }>
+                                { STATS_METRICS_LABELS[metric] }
+                            </option>) }
                         </select>
                     </label>
                     <label>
@@ -198,9 +168,9 @@ class StatsPage extends React.Component {
                                         labelFormatter={ this.timeFormatter }
                                         wrapperStyle={ {zIndex: 1000} }
                                     />
-                                    { jobQueues.map((jobQueue, i) => {
-                                        const color = CHART_COLORS[i % CHART_COLORS.length];
-                                        const key = jobQueue + '_vcpu_seconds';
+                                    { jobQueues.map(jobQueue => {
+                                        const color = getChartColor(jobQueue);
+                                        const key = this.getLookupKey(jobQueue, statsMetric);
                                         return <Area
                                             type='monotone'
                                             key={ key }
@@ -236,12 +206,12 @@ class StatsPage extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    { jobQueues.map((jobQueue, i) => {
-                                        const color = CHART_COLORS[i % CHART_COLORS.length];
+                                    { jobQueues.map(jobQueue => {
+                                        const color = getChartColor(jobQueue);
                                         const statuses = Object.keys(tableData[jobQueue]).sort((a, b) => b.localeCompare(a));
                                         return statuses.map((status, statusIdx) => {
                                             const item = tableData[jobQueue][status];
-                                            return this.getTableRow(jobQueue, color, timeBetween, item);
+                                            return this.getTableRow(jobQueue, color, timeBetween, item, status);
                                         });
                                     }) }
 
@@ -284,7 +254,7 @@ class StatsPage extends React.Component {
 
             METRICS.forEach(metric => {
                 // Aggregate chart
-                const keyName = stat.job_queue + '_' + metric;
+                const keyName = this.getLookupKey(stat.job_queue, metric);
                 if (!chartData[stat.timestamp][keyName])
                     chartData[stat.timestamp][keyName] = 0;
                 chartData[stat.timestamp][keyName] += stat[metric];
@@ -299,9 +269,21 @@ class StatsPage extends React.Component {
                     totalData[metric] = 0;
                 totalData[metric] += stat[metric];
             });
+
+            // Derived chart metrics
+            const avgVCPUKey = this.getLookupKey(stat.job_queue, STATS_METRICS.avg_vcpu);
+            const avgMemoryKey = this.getLookupKey(stat.job_queue, STATS_METRICS.avg_memory);
+            const vcpuSecondsKey = this.getLookupKey(stat.job_queue, STATS_METRICS.vcpu_seconds);
+            const memorySecondsKey = this.getLookupKey(stat.job_queue, STATS_METRICS.memory_seconds);
+            const instanceSecondsKey = this.getLookupKey(stat.job_queue, STATS_METRICS.instance_seconds);
+            chartData[stat.timestamp][avgVCPUKey] = chartData[stat.timestamp][vcpuSecondsKey] / chartData[stat.timestamp][instanceSecondsKey];
+            chartData[stat.timestamp][avgMemoryKey] = chartData[stat.timestamp][memorySecondsKey] / chartData[stat.timestamp][instanceSecondsKey];
         });
 
-        const chartDataFlat = Object.keys(chartData).sort().map(timestamp => chartData[timestamp]);
+        const chartDataFlat = Object.keys(chartData).sort().map(timestamp => {
+            return chartData[timestamp];
+        });
+
         const jobQueuesSorted = Object.keys(jobQueues).sort((a, b) => jobQueues[b] - jobQueues[a]);
         return [chartDataFlat, tableData, totalData, jobQueuesSorted];
     }
@@ -326,17 +308,18 @@ class StatsPage extends React.Component {
             ...query,
             startDate: query.startDate ? moment.unix(query.startDate).toDate() : QUERY_PARAM_DEFAULTS.startDate,
             endDate: query.endDate ? moment.unix(query.endDate).toDate() : QUERY_PARAM_DEFAULTS.endDate,
+            statsMetric: query.statsMetric || QUERY_PARAM_DEFAULTS.statsMetric,
         };
         this.props.setParams(queryParamsWithDefaults);
     }
 
-    getTableRow = (label, color, timeBetween, item) => {
+    getTableRow = (label, color, timeBetween, item, status) => {
         return <tr>
             <td>
                 <div className='color-block' style={ { backgroundColor: color } } />
                 { label }
             </td>
-            <td><StatusFormatter value={ status } /></td>
+            <td className='status-column'>{ status && <StatusFormatter value={ status } /> }</td>
             <td>{ item.job_count }</td>
             <td>{ humanizeDuration(item.instance_seconds * 1000, HUMANIZE_OPTS) }</td>
             <td>{ humanizeDuration(item.vcpu_seconds * 1000, HUMANIZE_OPTS) }</td>
@@ -348,6 +331,13 @@ class StatsPage extends React.Component {
             <td>{ (item.job_count / timeBetween * 3600).toFixed(1) }</td>
         </tr>;
     }
+
+
+    setStatsMetric = (event) => {
+        this.props.setStatsMetric(event.target.value);
+    }
+
+    getLookupKey = (queue, metric) => `${queue}_${metric}`;
 }
 
 const mapStateToProps = state => ({
@@ -357,16 +347,18 @@ const mapStateToProps = state => ({
     selectedStatus: state.job.selectedStatus,
     startDate: state.job.startDate,
     stats: state.job.stats,
+    statsMetric: state.job.statsMetric,
     status: state.status[STATS],
 });
 
 const actions = {
     fetchStatsPage,
-    updateJobsQueryParams,
-    setStartDate,
     setEndDate,
-    syncJobQueues,
     setParams,
+    setStartDate,
+    setStatsMetric,
+    syncJobQueues,
+    updateJobsQueryParams,
 };
 
 export default connect(mapStateToProps, actions)(StatsPage);
