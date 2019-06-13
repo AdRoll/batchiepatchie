@@ -78,6 +78,7 @@ class StatsPage extends React.Component {
     componentDidMount() {
         this.loadStateFromQueryParams();
         this.props.syncJobQueues();
+        this.props.fetchStatsPage();
     }
 
     componentDidUpdate(prevProps) {
@@ -359,6 +360,8 @@ class StatsPage extends React.Component {
             startDate: query.startDate ? moment.unix(query.startDate).toDate() : QUERY_PARAM_DEFAULTS.startDate,
             endDate: query.endDate ? moment.unix(query.endDate).toDate() : QUERY_PARAM_DEFAULTS.endDate,
             statsMetric: query.statsMetric || QUERY_PARAM_DEFAULTS.statsMetric,
+            selectedQueue: !query.selectedQueue ? 'all' : query.selectedQueue,
+            selectedStatus: !query.selectedStatus ? 'all' : query.selectedStatus,
         };
         this.props.setParams(queryParamsWithDefaults);
     }

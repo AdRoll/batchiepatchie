@@ -147,6 +147,7 @@ class JobsPage extends React.Component {
     componentDidMount() {
         this.loadStateFromQueryParams();
         this.props.syncJobQueues();
+        this.props.fetchJobsPage();
     }
 
     componentDidUpdate(prevProps) {
@@ -158,7 +159,6 @@ class JobsPage extends React.Component {
             this.props.selectedQueue !== prevProps.selectedQueue) {
             this.props.updateJobsQueryParams();
             this.props.fetchJobsPage();
-            this.props.updateJobsQueryParams();
         }
     }
 
@@ -310,7 +310,9 @@ class JobsPage extends React.Component {
             ...QUERY_PARAM_DEFAULTS,
             ...query,
             page: query.page ? parseInt(query.page) : 0,
-            selectedIds: query.selectedIds ? query.selectedIds.split(',') : []
+            selectedIds: query.selectedIds ? query.selectedIds.split(',') : [],
+            selectedQueue: !query.selectedQueue ? 'all' : query.selectedQueue,
+            selectedStatus: !query.selectedStatus ? 'all' : query.selectedStatus,
         };
         this.props.setParams(queryParamsWithDefaults);
     }
