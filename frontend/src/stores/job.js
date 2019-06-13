@@ -453,7 +453,7 @@ export function updateJobsQueryParams() {
 
         const queryParamsStr = queryString.stringify(queryParams);
         const queryParamsWithQuestion = queryParamsStr.length > 0 ? `?${queryParamsStr}` : '' ;
-        const newUrl = process.env.BASE_URL + state.routing.locationBeforeTransitions.pathname + `${queryParamsWithQuestion}`;
+        const newUrl = state.routing.locationBeforeTransitions.pathname + `${queryParamsWithQuestion}`;
 
         // Push new state if different
         if (queryParamsWithQuestion !== window.location.search) {
