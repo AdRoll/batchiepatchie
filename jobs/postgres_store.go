@@ -1226,7 +1226,7 @@ func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) 
 		SELECT
 			job_queue,
 			status,
-			FLOOR((EXTRACT(EPOCH FROM last_updated) / $1)) * $1 AS interval_alias,
+			FLOOR((EXTRACT(EPOCH FROM run_started_at) / $1)) * $1 AS interval_alias,
 			GREATEST(SUM(vcpus * EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) vcpu_seconds,
 			GREATEST(SUM(memory * EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) memory_seconds,
 			GREATEST(SUM(EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) instance_seconds,
