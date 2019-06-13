@@ -429,8 +429,6 @@ func (s *Server) JobStats(c echo.Context) error {
 		interval = 5 * minuteSeconds
 	}
 
-	log.Info("Interval", interval)
-
 	var queues []string
 	var status []string
 	if len(queuesStr) > 0 {
