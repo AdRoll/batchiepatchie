@@ -25,6 +25,7 @@ import {
     Bar,
     BarChart,
     CartesianGrid,
+    Label,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -45,7 +46,13 @@ const METRICS = [
     'instance_seconds',
     'job_count',
 ];
-
+const METRIC_UNITS = {
+    vcpu_seconds: 'Compute Time',
+    instance_seconds: 'Job Time',
+    job_count: '# of Jobs',
+    avg_vcpu: '# of vCPU Cores',
+    avg_memory: 'GB'
+};
 const HUMANIZE_OPTS = {
     largest: 2,
     round: true
@@ -164,7 +171,7 @@ class StatsPage extends React.Component {
                 <div className='container-fluid'>
                     <div className='row'>
                         <div className='col-md-12 area-chart'>
-                            <ResponsiveContainer width='100%' height={ 300 }>
+                            <ResponsiveContainer width='100%' height={ 350 }>
                                 <Chart
                                     data={ chartData }
                                     margin={ {
@@ -175,10 +182,26 @@ class StatsPage extends React.Component {
                                     } }
                                 >
                                     <CartesianGrid strokeDasharray='3 3' />
-                                    <XAxis dataKey='timestamp' tickFormatter={ this.timeFormatter } />
-                                    <YAxis width={ 80 } type='number' />
+                                    <XAxis
+                                        dataKey='timestamp'
+                                        tickFormatter={ this.timeFormatter }
+                                        label='Datetime'
+                                        height={ 60 }
+                                    />
+                                    <YAxis
+                                        width={ 90 }
+                                        type='number'
+                                        tickFormatter={ this.metricFormatter(statsMetric) }
+                                    >
+                                        <Label
+                                            value={ METRIC_UNITS[statsMetric] }
+                                            position='insideLeft'
+                                            angle={ -90 }
+                                            style={ { textAnchor: 'middle' } }
+                                            />
+                                    </YAxis>
                                     <Tooltip
-                                        formatter={ this.tooltipFormatter }
+                                        formatter={ this.metricFormatter(statsMetric) }
                                         labelFormatter={ this.timeFormatter }
                                         wrapperStyle={ {zIndex: 1000} }
                                     />
@@ -307,6 +330,20 @@ class StatsPage extends React.Component {
 
     tooltipFormatter = (a) => {
         return a.toFixed(1);
+    }
+
+    metricFormatter = (statsMetric) => {
+        const durationFormatter = x => humanizeDuration(x, { round: true, largest: 1 });
+        const fixedFormatter = x => x.toFixed(1);
+        const noopFormatter = x => x;
+        const formatters = {
+            vcpu_seconds: durationFormatter,
+            instance_seconds: durationFormatter,
+            job_count: noopFormatter,
+            avg_vcpu: fixedFormatter,
+            avg_memory: (x) => (x / 1000).toFixed(1)
+        };
+        return formatters[statsMetric];
     }
 
     formatAsHours = (seconds) => {

@@ -10,7 +10,6 @@ const CHART_COLORS = [
     '#66644D',
     '#4C4700',
     '#EEFF00',
-    '#FBFFBF',
     '#66FF00',
     '#7DB359',
     '#8FBFA3',
