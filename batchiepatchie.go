@@ -144,6 +144,7 @@ func main() {
 
 	e.GET("/ping", pingHandler)
 	e.GET("/", s.IndexHandler)
+	e.GET("/stats", s.IndexHandler)
 	e.GET("/index.html", s.IndexHandler)
 
 	// These are pseudo-URLs, the frontend will handle displaying the correct page
