@@ -388,6 +388,73 @@ func (s *Server) DeactivateJobQueue(c echo.Context) error {
 	}
 }
 
+// Stats
+func (s *Server) JobStats(c echo.Context) error {
+	span := opentracing.StartSpan("API.JobStats")
+	defer span.Finish()
+
+	c.QueryParams()
+	queuesStr := c.QueryParam("queue")
+	statusStr := c.QueryParam("status")
+	start, start_err := strconv.ParseInt(c.QueryParam("start"), 10, 64)
+	end, end_err := strconv.ParseInt(c.QueryParam("end"), 10, 64)
+	var duration int64 = end - start
+	var minuteSeconds int64 = 60
+	var hourSeconds int64 = 60 * minuteSeconds
+	var daySeconds int64 = 24 * hourSeconds
+
+	if start_err != nil {
+		log.Error(start_err)
+		c.JSON(http.StatusInternalServerError, start_err)
+		return start_err
+	}
+
+	if end_err != nil {
+		log.Error(end_err)
+		c.JSON(http.StatusInternalServerError, end_err)
+		return end_err
+	}
+
+	// The interval used by the query to break stats down by
+	var interval int64
+	if duration >= 30 * daySeconds {
+		interval = daySeconds
+	} else if duration >= 3 * daySeconds {
+		interval = 6 * hourSeconds
+	} else if duration >= 4 * hourSeconds {
+		interval = hourSeconds
+	} else if duration >= hourSeconds {
+		interval = 15 * minuteSeconds
+	} else {
+		interval = 5 * minuteSeconds
+	}
+
+	var queues []string
+	var status []string
+	if len(queuesStr) > 0 {
+		queues = strings.Split(queuesStr, ",")
+	}
+	if len(statusStr) > 0 {
+		status = strings.Split(statusStr, ",")
+	}
+	results, err := s.Storage.JobStats(&jobs.JobStatsOptions{
+		Queues:   queues,
+		Status:   status,
+		Interval: interval,
+		Start:    start,
+		End:      end,
+	})
+
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusInternalServerError, err)
+		return err
+	}
+
+	c.JSON(http.StatusOK, results)
+	return nil
+}
+
 // IndexHandler returns
 func (s *Server) IndexHandler(c echo.Context) error {
 	c.HTMLBlob(http.StatusOK, s.Index)

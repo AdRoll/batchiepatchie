@@ -1,3 +1,54 @@
 .stats-page {
+    label {
+        margin-left: 12px;
+    }
 
+    .actions {
+        float: right;
+        margin-bottom: 12px;
+
+        select {
+            float: right;
+            margin-right: 12px;
+            height: 42px;
+            line-height: 42px;
+            width: auto;
+        }
+
+        // react-datetime
+        .rdt {
+            display: inline-block;
+            margin-left: 6px;
+
+            .rdtPicker {
+                margin-left: -78px;
+            }
+        }
+    }
+
+    .color-block {
+        height: 9px;
+        width: 9px;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    td {
+        vertical-align: middle;
+
+
+        .status-column {
+            width: 105px;
+        }
+    }
+
+    tr:last-of-type {
+        font-weight: bold;
+    }
+
+    select.metric-picker {
+        margin-top: -7px;
+        margin-right: 0;
+        margin-left: 6px;
+    }
 }

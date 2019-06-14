@@ -139,10 +139,12 @@ func main() {
 		api.GET("/jobs/:id/status", s.GetStatus)
 		api.POST("/jobs/notify", s.JobStatusNotification)
 		api.GET("/jobs/:id/status_websocket", s.SubscribeToJobEvent)
+		api.GET("/jobs/stats", s.JobStats)
 	}
 
 	e.GET("/ping", pingHandler)
 	e.GET("/", s.IndexHandler)
+	e.GET("/stats", s.IndexHandler)
 	e.GET("/index.html", s.IndexHandler)
 
 	// These are pseudo-URLs, the frontend will handle displaying the correct page

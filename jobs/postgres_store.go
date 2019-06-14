@@ -1218,6 +1218,84 @@ func (pq *postgreSQLStore) flushJobStatusSubscriptions() error {
 	return nil
 }
 
+func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) {
+	span := opentracing.StartSpan("PG.JobStats")
+	defer span.Finish()
+
+	query := `
+		SELECT
+			job_queue,
+			status,
+			FLOOR((EXTRACT(EPOCH FROM run_started_at) / $1)) * $1 AS interval_alias,
+			GREATEST(SUM(vcpus * EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) vcpu_seconds,
+			GREATEST(SUM(memory * EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) memory_seconds,
+			GREATEST(SUM(EXTRACT(EPOCH FROM (stopped_at - run_started_at))), 0) instance_seconds,
+			COUNT(*) job_count
+		FROM jobs
+		WHERE last_updated > TO_TIMESTAMP($2) AT TIME ZONE 'UTC'
+		AND last_updated < TO_TIMESTAMP($3) AT TIME ZONE 'UTC'
+		AND stopped_at IS NOT NULL
+		AND run_started_at IS NOT NULL
+	`
+
+	args := make([]interface{}, 0)
+	args = append(args, opts.Interval)
+	args = append(args, opts.Start)
+	args = append(args, opts.End)
+
+	if len(opts.Status) > 0 {
+		query += " AND status IN ("
+
+		for i, item := range opts.Status {
+			args = append(args, item)
+			query += "$" + strconv.Itoa(len(args))
+			if i < len(opts.Status)-1 {
+				query += ","
+			}
+		}
+		query += ") "
+	}
+
+
+	if len(opts.Queues) > 0 {
+		query += " AND job_queue IN ("
+
+		for i, item := range opts.Queues {
+			args = append(args, item)
+			query += "$" + strconv.Itoa(len(args))
+			if i < len(opts.Queues)-1 {
+				query += ","
+			}
+		}
+		query += ") "
+	}
+
+	query += `
+		GROUP BY job_queue, status, interval_alias
+		ORDER BY 1 ASC, 2 ASC, 3 DESC, 4 DESC, 5 DESC
+	`
+
+	rows, err := pq.connection.Query(query, args...)
+	if err != nil {
+		log.Warning("Cannot find timed out jobs from database: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	allJobStats := make([]*JobStats, 0)
+	for rows.Next() {
+		var jobStats JobStats
+		if err := rows.Scan(&jobStats.JobQueue, &jobStats.Status, &jobStats.Timestamp, &jobStats.VCPUSeconds, &jobStats.MemorySeconds, &jobStats.InstanceSeconds, &jobStats.JobCount); err != nil {
+			log.Warning(err)
+			return nil, err
+		}
+
+		jobStats.Interval = opts.Interval
+		allJobStats = append(allJobStats, &jobStats)
+	}
+	return allJobStats, nil
+}
+
 func (pq *postgreSQLStore) SubscribeToJobStatus(jobID string) (<-chan Job, func()) {
 	span := opentracing.StartSpan("PG.SubscribeToJobStatus")
 	defer span.Finish()
