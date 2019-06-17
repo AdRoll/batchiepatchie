@@ -6,7 +6,7 @@ This page describes how to quickly get Batchiepatchie running.
 The process here is based on `docker-compose` tool that brings up necessary
 infrastructure locally. This is useful for development purposes but also to
 evaluate and test Batchiepatchie itself. For actual production deployment
-instructions, see [documentation on deployment page](deployment).
+instructions, see [documentation on deployment page](deployment.md).
 
 Prerequisities
 --------------
