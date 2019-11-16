@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "4.1.1",
-    "bootstrap-sass": "3.3.7",
+    "bootstrap-sass": "3.4.1",
     "bootswatch": "4.1.1",
     "classnames": "2.2.5",
     "font-awesome": "4.7.0",
