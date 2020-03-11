@@ -58,7 +58,7 @@ class JobPage extends React.Component {
         } = this.props;
 
         const job = jobsById[id];
-        const jobRegion = job.task_arn === null ? null : job.task_arn.split(":")[3];
+        const jobRegion = (job === undefined || job === null || job.task_arn === null) ? null : job.task_arn.split(":")[3];
         const log = logsById[id] ? logsById[id].map(entry => entry.Message) : [];
         const terminalHeight = height - 440;
 
@@ -66,7 +66,7 @@ class JobPage extends React.Component {
             return <div className='job-page' />;
         }
 
-        if (!status.loading && status.error) {
+        if ((!status.loading && status.error) || job === undefined) {
             return (
                 <div className='job-page'>
                     <div className='alert alert-danger'>
