@@ -58,7 +58,7 @@ class JobPage extends React.Component {
         } = this.props;
 
         const job = jobsById[id];
-        const jobRegion = job.task_arn.split(":")[3];
+        const jobRegion = job.task_arn === null ? null : job.task_arn.split(":")[3];
         const log = logsById[id] ? logsById[id].map(entry => entry.Message) : [];
         const terminalHeight = height - 440;
 
@@ -260,6 +260,7 @@ class JobPage extends React.Component {
                                     Download Logs
                                 </button>
                             </a>
+                            {job.log_stream_name === null || jobRegion === null ? <span /> :
                             <a
                                 href={
                                     "https://" +
@@ -271,10 +272,11 @@ class JobPage extends React.Component {
                                 }
                                 target="_blank"
                             >
-                            <button className="btn btn-xs btn-dark">
-                                Show logs in CloudWatch
-                            </button>
-                        </a>
+                                <button className="btn btn-xs btn-dark">
+                                    Show logs in CloudWatch
+                                </button>
+                            </a>
+                            }
                         </div>
                         <div className='col-md-3'>
                           { job.task_arn }
