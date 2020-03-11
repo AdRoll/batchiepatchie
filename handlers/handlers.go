@@ -227,12 +227,13 @@ func (s *Server) FetchLogs(c echo.Context) error {
 		return err
 	}
 
-	if len(logStreams.LogStreams) <= 0 {
-		c.JSON(http.StatusNotFound, "")
+	c.Response().WriteHeader(http.StatusOK)
+
+	if logStreams == nil || len(logStreams.LogStreams) <= 0 {
+		// Write empty logs.
+		c.Response().Flush()
 		return nil
 	}
-
-	c.Response().WriteHeader(http.StatusOK)
 
 	startFromHead := true
 	var previousToken *string
