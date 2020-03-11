@@ -58,6 +58,7 @@ class JobPage extends React.Component {
         } = this.props;
 
         const job = jobsById[id];
+        const jobRegion = job.task_arn.split(":")[3];
         const log = logsById[id] ? logsById[id].map(entry => entry.Message) : [];
         const terminalHeight = height - 440;
 
@@ -259,6 +260,21 @@ class JobPage extends React.Component {
                                     Download Logs
                                 </button>
                             </a>
+                            <a
+                                href={
+                                    "https://" +
+                                    jobRegion +
+                                    ".console.aws.amazon.com/cloudwatch/home?region=" +
+                                    jobRegion +
+                                    "#logEventViewer:group=/aws/batch/job;stream=" +
+                                    job.log_stream_name
+                                }
+                                target="_blank"
+                            >
+                            <button className="btn btn-xs btn-dark">
+                                Show logs in CloudWatch
+                            </button>
+                        </a>
                         </div>
                         <div className='col-md-3'>
                           { job.task_arn }
