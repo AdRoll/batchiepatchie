@@ -6,7 +6,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/AdRoll/batchiepatchie/awsclients"
 	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/aws/aws-sdk-go/aws"
@@ -193,7 +192,7 @@ func (s *Server) FetchLogs(c echo.Context) error {
 	newStyleLogs := func() (*string, error) {
 		log_stream_name := job.LogStreamName
 		if log_stream_name == nil || len(*log_stream_name) == 0 {
-			return nil, fmt.Errorf("No LogStreamName on job.")
+			return nil, nil
 		}
 
 		return log_stream_name, nil
@@ -206,6 +205,10 @@ func (s *Server) FetchLogs(c echo.Context) error {
 		var name *string
 		name, err = log_source()
 		if err != nil {
+			continue
+		}
+		// No error but no logs either
+		if name == nil {
 			continue
 		}
 		logStreams, err = svc.DescribeLogStreams(&cloudwatchlogs.DescribeLogStreamsInput{
@@ -417,11 +420,11 @@ func (s *Server) JobStats(c echo.Context) error {
 
 	// The interval used by the query to break stats down by
 	var interval int64
-	if duration >= 30 * daySeconds {
+	if duration >= 30*daySeconds {
 		interval = daySeconds
-	} else if duration >= 3 * daySeconds {
+	} else if duration >= 3*daySeconds {
 		interval = 6 * hourSeconds
-	} else if duration >= 4 * hourSeconds {
+	} else if duration >= 4*hourSeconds {
 		interval = hourSeconds
 	} else if duration >= hourSeconds {
 		interval = 15 * minuteSeconds
