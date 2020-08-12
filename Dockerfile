@@ -1,4 +1,4 @@
-FROM golang:1.11
+FROM golang:1.15
 
 RUN mkdir -p /go/src/github.com/AdRoll/batchiepatchie
 WORKDIR /go/src/github.com/AdRoll/batchiepatchie
