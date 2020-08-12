@@ -20,7 +20,7 @@ The static files are placed in `frontend/dist` in Batchiepatchie repository.
 The `test.toml` file that comes with Batchiepatchie is pointed to this
 directory from root of batchiepatchie repository.
 
-For development, if you do not want to use the `docker-compose` mechanism described in our [quickstart page](quickstart), you can instead do:
+For development, if you do not want to use the `docker-compose` mechanism described in our [quickstart page](quickstart.md), you can instead do:
 
 ```bash
 $ npm run dev

@@ -64,7 +64,7 @@ We will go through possible settings one by one.
   * `database_password`: This specifies the password to use to connect to PostgreSQL store. Mutually exclusive with `password_bucket` and `password_key` settings.
   * `password_bucket` and `password_key`: These specify an S3 bucket and key for an S3 object that contains the password. This way you can store your passwords encrypted in S3. The S3 object should contain a line: `database_password = "<actual password goes here>"`. These settings are mutually exclusive with plain `database_password` setting.
   * `frontend_assets`: This must be either `local` or `s3`. Batchiepatchie needs static files to show its UI and these static files can be stored locally or in S3.
-  * `frontend_assets_local_prefix`:  When `frontend_assets` is `local`, this must point to directory where `index.html` is located. Note that Batchiepatchie does not come with pre-built assets; you will need to build them in `frontend/` directory in Batchiepatchie repository first. Refer to [frontend build instructions](frontend) for more information.
+  * `frontend_assets_local_prefix`:  When `frontend_assets` is `local`, this must point to directory where `index.html` is located. Note that Batchiepatchie does not come with pre-built assets; you will need to build them in `frontend/` directory in Batchiepatchie repository first. Refer to [frontend build instructions](frontend.md) for more information.
   * `frontend_assets_bucket`: When `frontend_assets` is `s3`, this must point to the S3 bucket name where static assets are located.
   * `frontend_assets_key`: When `frontend_assets` is `s3, this must point to the key name that contains `index.html` for Batchiepatchie. Batchiepatchie will load this file from S3 at start up. Note that other static files are not loaded through S3.
   * `sync_period`: This specifies the number of seconds between polls with AWS Batch. By default, it is 30 seconds.
@@ -138,8 +138,8 @@ fetching information from AWS.
 
 S3 permissions are required if you place any configuration to S3; Batchiepatchie needs to be able to fetch it.
 
-If you want to use the [scaling hack feature](scaling) of Batchiepatchie, you will need
+If you want to use the [scaling hack feature](scaling.md) of Batchiepatchie, you will need
 to let it modify compute environments with `batch:UpdateComputeEnvironment`.
 
-If you want to use the [terminate instance hack feature](terminator) of
+If you want to use the [terminate instance hack feature](terminator.md) of
 Batchiepatchie, you will need to give it permission to terminate instances.
