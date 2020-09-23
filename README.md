@@ -10,9 +10,8 @@ Batch.
 
 ![Screenshot of Batchiepatchie](screenshot.png?raw=true)
 
-Detailed documentation that describes the features of Batchiepatchie and
-deployment instructions are located inside our docs directory.
-[This link](docs/docs/index.md) will take you to the index of the documentation.
+There is [detailed documentation](docs/docs/index.md) located inside our docs directory that describe features of Batchiepatchie and
+deployment instructions.
 
 How to contribute
 -----------------
