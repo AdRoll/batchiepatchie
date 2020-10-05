@@ -309,6 +309,7 @@ class JobsPage extends React.Component {
         const queryParamsWithDefaults = {
             ...QUERY_PARAM_DEFAULTS,
             ...query,
+            qTemp: query.q || '',
             page: query.page ? parseInt(query.page) : 0,
             selectedIds: query.selectedIds ? query.selectedIds.split(',') : [],
             selectedQueue: !query.selectedQueue ? 'all' : query.selectedQueue,
