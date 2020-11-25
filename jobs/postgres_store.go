@@ -1355,9 +1355,9 @@ func (pq *postgreSQLStore) SubscribeToJobStatus(jobID string) (<-chan Job, func(
 func NewPostgreSQLStore(databaseHost string, databasePort int, databaseUsername string, databaseName string, databasePassword string, databaseRootCertificate string) (FinderStorer, error) {
 	var dbstr string
 	if databaseRootCertificate == "" {
-		dbstr = fmt.Sprintf("user=%s dbname=%s host=%s port=%d password=%s sslmode=verify-full sslrootcert=%s", databaseUsername, databaseName, databaseHost, databasePort, databasePassword, databaseRootCertificate)
-	} else {
 		dbstr = fmt.Sprintf("user=%s dbname=%s host=%s port=%d password=%s sslmode=disable", databaseUsername, databaseName, databaseHost, databasePort, databasePassword)
+	} else {
+		dbstr = fmt.Sprintf("user=%s dbname=%s host=%s port=%d password=%s sslmode=verify-full sslrootcert=%s", databaseUsername, databaseName, databaseHost, databasePort, databasePassword, databaseRootCertificate)
 	}
 
 	db, err := sql.Open("postgres", dbstr)
