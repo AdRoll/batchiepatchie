@@ -12,21 +12,22 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/BurntSushi/toml"
 	"github.com/AdRoll/batchiepatchie/awsclients"
 	"github.com/AdRoll/batchiepatchie/envsubstituter"
 	"github.com/AdRoll/batchiepatchie/fetcher"
+	"github.com/BurntSushi/toml"
 	log "github.com/sirupsen/logrus"
 )
 
 type Config struct {
-	Port             int    `toml:"port"`
-	Host             string `toml:"host"`
-	DatabaseHost     string `toml:"database_host"`
-	DatabasePort     int    `toml:"database_port"`
-	DatabaseUsername string `toml:"database_username"`
-	DatabaseName     string `toml:"database_name"`
-	DatabasePassword string `toml:"database_password"`
+	Port                    int    `toml:"port"`
+	Host                    string `toml:"host"`
+	DatabaseHost            string `toml:"database_host"`
+	DatabasePort            int    `toml:"database_port"`
+	DatabaseUsername        string `toml:"database_username"`
+	DatabaseName            string `toml:"database_name"`
+	DatabasePassword        string `toml:"database_password"`
+	DatabaseRootCertificate string `toml:"database_root_certificate"`
 
 	LogEntriesKey string `toml:"logentries_token"`
 

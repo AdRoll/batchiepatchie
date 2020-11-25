@@ -1257,7 +1257,6 @@ func (pq *postgreSQLStore) JobStats(opts *JobStatsOptions) ([]*JobStats, error) 
 		query += ") "
 	}
 
-
 	if len(opts.Queues) > 0 {
 		query += " AND job_queue IN ("
 
@@ -1353,8 +1352,15 @@ func (pq *postgreSQLStore) SubscribeToJobStatus(jobID string) (<-chan Job, func(
 	return status_channel, unsubscribe
 }
 
-func NewPostgreSQLStore(databaseHost string, databasePort int, databaseUsername string, databaseName string, databasePassword string) (FinderStorer, error) {
-	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s port=%d sslmode=disable password=%s", databaseUsername, databaseName, databaseHost, databasePort, databasePassword))
+func NewPostgreSQLStore(databaseHost string, databasePort int, databaseUsername string, databaseName string, databasePassword string, databaseRootCertificate string) (FinderStorer, error) {
+	var dbstr string
+	if databaseRootCertificate == "" {
+		dbstr = fmt.Sprintf("user=%s dbname=%s host=%s port=%d password=%s sslmode=verify-full sslrootcert=%s", databaseUsername, databaseName, databaseHost, databasePort, databasePassword, databaseRootCertificate)
+	} else {
+		dbstr = fmt.Sprintf("user=%s dbname=%s host=%s port=%d password=%s sslmode=disable", databaseUsername, databaseName, databaseHost, databasePort, databasePassword)
+	}
+
+	db, err := sql.Open("postgres", dbstr)
 	if err != nil {
 		return nil, err
 	}
