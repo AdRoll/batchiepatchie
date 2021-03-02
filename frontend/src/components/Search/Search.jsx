@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import debounce from 'utils/debounce';
 import {
     setParams,
-    setLocationToSearch,
-    setSearch
+    setLocationToSearch
 } from 'stores/job';
 import SectionLoader from 'components/SectionLoader/SectionLoader';
 import {
@@ -27,16 +26,15 @@ function getStatusKey(path) {
 class Search extends React.Component {
     static propTypes = {
         loading: PropTypes.bool.isRequired,
-        q: PropTypes.string.isRequired,
+        qTemp: PropTypes.string.isRequired,
         setParams: PropTypes.func.isRequired,
-        setSearch: PropTypes.func.isRequired,
         statusKey: PropTypes.string.isRequired,
     };
 
     render() {
         const {
             loading,
-            q
+            qTemp
         } = this.props;
 
         return (
@@ -54,8 +52,8 @@ class Search extends React.Component {
                                 type='text'
                                 className='form-control'
                                 onChange={ this.onChange }
-                                onKeyPress={ this.handleKeyPress }
-                                value={ q }
+                                onKeyPress={ this.onKeyPress }
+                                value={ qTemp }
                                 placeholder='Search Jobs...'
                             />
                         </div>
@@ -66,18 +64,15 @@ class Search extends React.Component {
     }
 
     onChange = (e) => {
-        this.props.setSearch(e.target.value);
-
-        if (this.props.statusKey === JOBS) {
-            this.fetchJobsPage();
-        }
+        this.props.setParams({qTemp: e.target.value});
+        this.search(e.target.value);
     }
 
-    fetchJobsPage = debounce(() => {
-        this.props.setParams({q: this.props.q});
-    }, 300)
+    search = debounce((q) => {
+        this.props.setParams({q});
+    }, 500)
 
-    handleKeyPress = (e) => {
+    onKeyPress = (e) => {
         if (e.key === 'Enter' && this.props.statusKey !== JOBS) {
             this.props.setLocationToSearch();
         }
@@ -88,15 +83,14 @@ const mapStateToProps = state => {
     const statusKey = getStatusKey(state.routing.locationBeforeTransitions.pathname);
     return {
         statusKey,
-        q: state.job.q,
+        qTemp: state.job.qTemp,
         loading: state.status[statusKey].loading
     };
 };
 
 const actions = {
     setParams,
-    setLocationToSearch,
-    setSearch
+    setLocationToSearch
 };
 
 export default connect(mapStateToProps, actions)(Search);
