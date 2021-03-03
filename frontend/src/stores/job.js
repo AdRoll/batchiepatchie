@@ -23,6 +23,7 @@ export const SET_LOGS = 'SET_LOGS';
 export const SET_PAGE = 'SET_PAGE';
 export const SET_QUEUES = 'SET_QUEUES';
 export const SET_SEARCH = 'SET_SEARCH';
+export const SET_SEARCH_TEMP = 'SET_SEARCH_TEMP';
 export const SET_SELECTED_IDS = 'SET_SELECTED_IDS';
 export const SET_SELECTED_QUEUE = 'SET_SELECTED_QUEUE';
 export const SET_SELECTED_STATUS = 'SET_SELECTED_STATUS';
@@ -134,6 +135,7 @@ const initialState = {
     logsById: {},
     page: 0,
     q: '',
+    qTemp: '',
     queues: [],
     selectedIds: [],
     selectedQueue: 'all',
@@ -209,6 +211,13 @@ actions[SET_SEARCH] = (state, { payload }) => {
     return {
         ...state,
         q: payload
+    };
+};
+
+actions[SET_SEARCH_TEMP] = (state, { payload }) => {
+    return {
+        ...state,
+        qTemp: payload
     };
 };
 
@@ -322,6 +331,13 @@ export function setSearch(q) {
     };
 };
 
+export function setSearchTemp(qTemp) {
+    return {
+        type: SET_SEARCH_TEMP,
+        payload: qTemp
+    };
+}
+
 export function setSelectedIds(selectedIds) {
     return {
         type: SET_SELECTED_IDS,
@@ -402,6 +418,9 @@ export function setParams(params) {
 
         if (params.q !== undefined)
             dispatch(setSearch(params.q));
+
+        if (params.qTemp !== undefined)
+            dispatch(setSearchTemp(params.qTemp));
 
         if (params.page !== undefined)
             dispatch(setPage(params.page));
