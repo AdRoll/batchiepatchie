@@ -65,7 +65,7 @@
     "fs-extra": "3.0.1",
     "html-webpack-plugin": "2.29.0",
     "node-sass": "4.14.1",
-    "react-dev-utils": "3.1.2",
+    "react-dev-utils": "11.0.4",
     "react-error-overlay": "1.0.7",
     "sass-loader": "6.0.7",
     "source-map-loader": "0.2.1",
