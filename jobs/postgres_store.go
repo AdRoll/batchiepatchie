@@ -108,7 +108,7 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 		index := strconv.Itoa(len(args))
 
 		whereClausesScan = append(whereClausesScan, fmt.Sprintf(`
-			(job_id || job_name || job_queue || image || command_line || job_definition) LIKE $%s
+			(job_id || job_name || job_queue || image) LIKE $%s
 		`, index))
 	}
 
