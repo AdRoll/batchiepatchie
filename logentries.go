@@ -5,8 +5,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func setUpLogEntriesHooks(key string) {
-	le, err := logentriesrus.NewLogentriesrusHook(key)
+func setUpLogEntriesHooks(host string, key string) {
+	le, err := logentriesrus.NewLogentriesrusHook(host, key)
 	if err != nil {
 		log.Fatal("Cannot connect to logentries: ", err)
 	}
