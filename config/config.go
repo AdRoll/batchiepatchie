@@ -20,13 +20,14 @@ import (
 )
 
 type Config struct {
-	Port             int    `toml:"port"`
-	Host             string `toml:"host"`
-	DatabaseHost     string `toml:"database_host"`
-	DatabasePort     int    `toml:"database_port"`
-	DatabaseUsername string `toml:"database_username"`
-	DatabaseName     string `toml:"database_name"`
-	DatabasePassword string `toml:"database_password"`
+	Port                    int    `toml:"port"`
+	Host                    string `toml:"host"`
+	DatabaseHost            string `toml:"database_host"`
+	DatabasePort            int    `toml:"database_port"`
+	DatabaseUsername        string `toml:"database_username"`
+	DatabaseName            string `toml:"database_name"`
+	DatabasePassword        string `toml:"database_password"`
+	DatabaseRootCertificate string `toml:"database_root_certificate"`
 
 	LogEntriesHost string `toml:"logentries_host"`
 	LogEntriesKey  string `toml:"logentries_token"`
