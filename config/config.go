@@ -12,10 +12,10 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/BurntSushi/toml"
 	"github.com/AdRoll/batchiepatchie/awsclients"
 	"github.com/AdRoll/batchiepatchie/envsubstituter"
 	"github.com/AdRoll/batchiepatchie/fetcher"
+	"github.com/BurntSushi/toml"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,7 +28,8 @@ type Config struct {
 	DatabaseName     string `toml:"database_name"`
 	DatabasePassword string `toml:"database_password"`
 
-	LogEntriesKey string `toml:"logentries_token"`
+	LogEntriesHost string `toml:"logentries_host"`
+	LogEntriesKey  string `toml:"logentries_token"`
 
 	Region string `toml:"region"`
 
