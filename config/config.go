@@ -29,7 +29,8 @@ type Config struct {
 	DatabasePassword        string `toml:"database_password"`
 	DatabaseRootCertificate string `toml:"database_root_certificate"`
 
-	LogEntriesKey string `toml:"logentries_token"`
+	LogEntriesHost string `toml:"logentries_host"`
+	LogEntriesKey  string `toml:"logentries_token"`
 
 	Region string `toml:"region"`
 

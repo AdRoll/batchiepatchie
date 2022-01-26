@@ -61,7 +61,11 @@ func main() {
 
 	if config.Conf.LogEntriesKey != "" {
 		log.Info("logentries_token supplied, will connect to LogEntries.")
-		setUpLogEntriesHooks(config.Conf.LogEntriesKey)
+		logentries_host := "data.logentries.com:443"
+		if config.Conf.LogEntriesHost != "" {
+			logentries_host = config.Conf.LogEntriesHost
+		}
+		setUpLogEntriesHooks(logentries_host, config.Conf.LogEntriesKey)
 	}
 
 	var trace opentracing.Tracer
