@@ -1,3 +1,4 @@
+-- +goose NO TRANSACTION
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 DROP INDEX CONCURRENTLY trgm_idx_jobs;
