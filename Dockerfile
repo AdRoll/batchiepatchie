@@ -4,7 +4,7 @@ RUN mkdir -p /go/src/github.com/AdRoll/batchiepatchie
 WORKDIR /go/src/github.com/AdRoll/batchiepatchie
 COPY . /go/src/github.com/AdRoll/batchiepatchie
 
-RUN go get
+RUN go get -v
 
 EXPOSE 5454
 EXPOSE 9999
