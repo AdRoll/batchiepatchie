@@ -9,7 +9,7 @@ RUN go mod download -x
 EXPOSE 5454
 EXPOSE 9999
 
-RUN go install github.com/tianon/gosu
+RUN go get -u github.com/tianon/gosu
 RUN go install github.com/pilu/fresh@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 RUN wget https://github.com/pressly/goose/releases/download/v2.6.0/goose-linux64 -O /usr/bin/goose
