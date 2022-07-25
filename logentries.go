@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/jcftang/logentriesrus"
+	// forked version to fix go mod issue
+	"github.com/AdRoll/logentriesrus"
 	log "github.com/sirupsen/logrus"
 )
 
