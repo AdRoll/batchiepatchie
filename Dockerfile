@@ -1,17 +1,17 @@
-FROM golang:1.15
+FROM golang:1.18
 
 RUN mkdir -p /go/src/github.com/AdRoll/batchiepatchie
 WORKDIR /go/src/github.com/AdRoll/batchiepatchie
 COPY . /go/src/github.com/AdRoll/batchiepatchie
 
-RUN go get -v
+RUN go mod download -x
 
 EXPOSE 5454
 EXPOSE 9999
 
-RUN go get -u github.com/tianon/gosu
-RUN go get -u github.com/pilu/fresh
-RUN go get -u github.com/derekparker/delve/cmd/dlv
+RUN go install github.com/tianon/gosu
+RUN go install github.com/pilu/fresh@latest
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
 RUN wget https://github.com/pressly/goose/releases/download/v2.6.0/goose-linux64 -O /usr/bin/goose
 # RUN go get -u github.com/pressly/goose/cmd/goose
 
