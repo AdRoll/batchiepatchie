@@ -8,7 +8,7 @@ export default class DateTimeFormatter extends React.Component {
 
     render() {
         const dt = moment.utc(this.props.value);
-        const dtStr = dt.isValid() ? `${dt.format('YYYY-MM-DD h:mm:ss a')} (${dt.fromNow()})` : '';
+        const dtStr = dt.isValid() ? `${dt.format('YYYY-MM-DD h:mm:ss a z')} (${dt.fromNow()})` : '';
 
         return (
             <div className='datetime-formatter'>
