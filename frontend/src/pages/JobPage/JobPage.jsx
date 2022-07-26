@@ -255,7 +255,10 @@ class JobPage extends React.Component {
                             <button className='btn btn-xs btn-danger' onClick={ this.killJob }>
                                 Kill Job
                             </button>
-                            <a href={process.env.BASE_URL + "/api/v1/jobs/" + this.props.params.id  + "/logs?format=text"} download={ this.props.params.id.substr(0, 8) + ".txt" }>
+                            <a
+                                href={process.env.BASE_URL + "/api/v1/jobs/" + this.props.params.id  + "/logs?format=text"}
+                                download={ this.props.params.id.substr(0, 8) + ".txt" }
+                            >
                                 <button className='btn btn-xs btn-info'>
                                     Download Logs
                                 </button>
@@ -272,8 +275,25 @@ class JobPage extends React.Component {
                                 }
                                 target="_blank"
                             >
-                                <button className="btn btn-xs btn-dark">
+                                <button className='btn btn-xs btn-dark'>
                                     Show logs in CloudWatch
+                                </button>
+                            </a>
+                            }
+                            {job.id === null || jobRegion === null ? <span /> :
+                            <a
+                                href={
+                                    "https://" +
+                                    jobRegion +
+                                    ".console.aws.amazon.com/batch/home?region=" +
+                                    jobRegion +
+                                    "#jobs/detail/" +
+                                    job.id
+                                }
+                                target="_blank"
+                            >
+                                <button className='btn btn-xs btn-warning'>
+                                    Show in AWS Batch
                                 </button>
                             </a>
                             }
