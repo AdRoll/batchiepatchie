@@ -256,13 +256,12 @@ class JobPage extends React.Component {
                                 Kill Job
                             </button>
                             <a
-                                href={
-                                    process.env.BASE_URL + "/api/v1/jobs/" + this.props.params.id  + "/logs?format=text"
-                                }
+                                href={process.env.BASE_URL + "/api/v1/jobs/" + this.props.params.id  + "/logs?format=text"}
                                 download={ this.props.params.id.substr(0, 8) + ".txt" }
-                                className='btn btn-info'
                             >
-                                Download Logs
+                                <button className='btn btn-xs btn-info'>
+                                    Download Logs
+                                </button>
                             </a>
                             {job.log_stream_name === null || jobRegion === null ? <span /> :
                             <a
@@ -276,7 +275,7 @@ class JobPage extends React.Component {
                                 }
                                 target="_blank"
                             >
-                                <button className='btn btn-dark'>
+                                <button className='btn btn-xs btn-dark'>
                                     Show logs in CloudWatch
                                 </button>
                             </a>
@@ -293,7 +292,7 @@ class JobPage extends React.Component {
                                 }
                                 target="_blank"
                             >
-                                <button className='btn btn-warning'>
+                                <button className='btn btn-xs btn-warning'>
                                     Show in AWS Batch
                                 </button>
                             </a>
