@@ -102,13 +102,16 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 
 	whereClausesScan = append(whereClausesScan, "last_updated > (now() - interval '30 days')")
 
-	if opts.Search != "" {
-		glob_search := "%" + searchEscape(opts.Search) + "%"
+	// Split search into tokens (separated by whitespace). We will search for each token separately.
+	// If search is empty or only whitespace, tokens will be an empty array.
+	tokens := strings.Fields(opts.Search)
+	for _, token := range tokens {
+		glob_search := "%" + searchEscape(token) + "%"
 		args = append(args, glob_search)
 		index := strconv.Itoa(len(args))
 
 		whereClausesScan = append(whereClausesScan, fmt.Sprintf(`
-			(job_id || job_name || job_queue || image) LIKE $%s
+			(job_id || job_name || job_queue || image) ILIKE $%s
 		`, index))
 	}
 
