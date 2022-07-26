@@ -8,6 +8,7 @@ import './LayoutContainer.scss';
 class LayoutContainer extends React.Component {
     static propTypes = {
         children: PropTypes.element.isRequired,
+        location: PropTypes.object.isRequired,
         setPageDimensions: PropTypes.func.isRequired
     };
 
@@ -21,6 +22,7 @@ class LayoutContainer extends React.Component {
     }
 
     render() {
+        const onJobsPage = this.props.location.pathname === '/';
         return (
             <div className='layout-container container-fluid'>
                 <div className='row'>
@@ -28,7 +30,7 @@ class LayoutContainer extends React.Component {
                         <h1>Batchiepatchie</h1>
                     </div>
                     <div className='col-md-6'>
-                        <Search />
+                        {onJobsPage && <Search />}
                     </div>
                 </div>
 
