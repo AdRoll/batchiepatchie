@@ -19,4 +19,15 @@
         margin-right: 6px;
         cursor: default;
     }
+
+    .status-formatter {
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    .child-array-job-statuses {
+        .status-formatter {
+            margin-top: 3px;
+        }
+    }
 }
