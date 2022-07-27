@@ -20,7 +20,7 @@ class QueueSelector extends React.Component {
                     disabled={ false }
                     multi
                     onChange={ this.props.setSelectedQueue }
-                    options={ this.props.queues.map(q => ({ label: q, value: q })) }
+                    options={ this.props.queues.sort().map(q => ({ label: q, value: q })) }
                     placeholder='Queue'
                     value={ this.props.selectedQueue }
                     simpleValue
