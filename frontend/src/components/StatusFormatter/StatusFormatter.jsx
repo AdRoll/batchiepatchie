@@ -16,15 +16,19 @@ export const STATUS_CLASSES = {
 
 export default class StatusFormatter extends React.Component {
     static propTypes = {
+        count: PropTypes.number,
         value: PropTypes.string.isRequired
     };
 
     render() {
         const value = this.props.value;
+        const count = this.props.count;
 
         return (
             <div className='status-formatter'>
                 <div className={ STATUS_CLASSES[value] }>
+                    { count }
+                    { count && ' ' }
                     { STATUS_LABELS[value] }
                 </div>
             </div>
