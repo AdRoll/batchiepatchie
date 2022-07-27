@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import {
+    STATUS_ORDER,
     fetchJobLogs,
     fetchJobPage,
     killJobs
@@ -114,7 +115,7 @@ class JobPage extends React.Component {
                 <div className='container-fluid'>
                     <div className='row'>
                         <div className='col-md-12'>
-                            <h2><NameFormatter value={ job.name } id={ job.id } /></h2>
+                            <h2><NameFormatter value={ job.name } id={ job.id } dependentValues={ job } /></h2>
                         </div>
                     </div>
 
@@ -136,6 +137,23 @@ class JobPage extends React.Component {
                     <div className='row'>
                         <div className='col-md-3'>
                             <StatusFormatter value={ job.status } />
+                            {job.array_properties &&
+                                <div className='status-formatter'>
+                                    <div className='alert alert-gone'>
+                                        Array Job
+                                    </div>
+                                </div>
+                            }
+                            {job.array_properties &&
+                                <div className='child-array-job-statuses'>
+                                    {
+                                        STATUS_ORDER.map((status) => {
+                                            const count = job.array_properties.status_summary[status.toLowerCase()];
+                                            return count > 0 && <StatusFormatter count={ count } value={ status } key={ status } />
+                                        })
+                                    }
+                                </div>
+                            }
                         </div>
                         <div className='col-md-3'>
                             <DateTimeFormatter value={ job.last_updated } />

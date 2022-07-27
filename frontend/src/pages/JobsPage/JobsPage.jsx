@@ -50,6 +50,7 @@ const COLUMNS = [
         resizable: true,
         sortable: true,
         width: 310,
+        getRowMetaData: (job) => job,
         formatter: NameFormatter
     },
     {
