@@ -10,13 +10,17 @@ const CHAR_WIDTH = 8;
 export default class Terminal extends React.Component {
     static propTypes = {
         height: PropTypes.number.isRequired,
+        autoScrollToBottom: PropTypes.bool.isRequired,
         log: PropTypes.array.isRequired
     };
 
     render() {
-        const { log, height } = this.props;
+        const { log, height, autoScrollToBottom } = this.props;
         const maxLength = log.reduce((memo, item) => Math.max(memo, item.length), 0);
-
+        let listProps = {};
+        if (autoScrollToBottom) {
+            listProps = { scrollToIndex: log.length-1 };
+        }
         return (
             <div className='terminal'>
                 <AutoSizer disableHeight>
@@ -30,6 +34,7 @@ export default class Terminal extends React.Component {
                             rowHeight={ LOG_ROW_HEIGHT }
                             rowRenderer={ this.rowRenderer }
                             width={ Math.max(width, maxLength * CHAR_WIDTH) }
+                            {...listProps}
                         />
                     ) }
                 </AutoSizer>
