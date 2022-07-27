@@ -32,6 +32,13 @@ class JobPage extends React.Component {
         status: PropTypes.object.isRequired
     };
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            autoScrollToBottom: true,
+        };
+    }
+
     componentDidMount() {
         this.props.fetchJobPage(this.props.params.id);
         this.props.fetchJobLogs(this.props.params.id);
@@ -57,6 +64,7 @@ class JobPage extends React.Component {
             height,
             status
         } = this.props;
+        const { autoScrollToBottom } = this.state;
 
         const job = jobsById[id];
         let jobRegion = (job === undefined || job === null || job.task_arn === null) ? null : job.task_arn.split(":")[3];
@@ -363,13 +371,20 @@ class JobPage extends React.Component {
                     <div className='row'>
                         <div className='col-md-12'>
                             <h2>Logs</h2>
+                            <label className="auto-scroll-checkbox">
+                                <input type="checkbox"
+                                    defaultChecked={autoScrollToBottom}
+                                    onChange={() => this.setState({autoScrollToBottom: !autoScrollToBottom})}
+                                />
+                                Auto-scroll to bottom
+                            </label>
                             { logStatus.loading && <SectionLoader /> }
                         </div>
                     </div>
 
                     <div className='row'>
                         <div className='col-md-12'>
-                            <Terminal log={ log } height={ terminalHeight } />
+                            <Terminal log={ log } height={ terminalHeight } autoScrollToBottom={ autoScrollToBottom } />
                         </div>
                     </div>
                 </div>
