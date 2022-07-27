@@ -321,7 +321,7 @@ class StatsPage extends React.Component {
             return chartData[timestamp];
         });
 
-        const jobQueuesSorted = Object.keys(jobQueues).sort((a, b) => jobQueues[b] - jobQueues[a]);
+        const jobQueuesSorted = Object.keys(jobQueues).sort();
         return [chartDataFlat, tableData, totalData, jobQueuesSorted];
     }
 
