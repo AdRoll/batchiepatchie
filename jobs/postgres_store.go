@@ -89,7 +89,8 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 				exitcode,
 				log_stream_name,
 				termination_requested,
-				task_arn
+				task_arn,
+				array_properties
 			FROM jobs
 		`
 
@@ -179,7 +180,7 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 	allJobs := make([]*Job, 0)
 	for rows.Next() {
 		var job Job
-		if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN); err != nil {
+		if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.ArrayProperties); err != nil {
 			log.Warning(err)
 			return nil, err
 		}
@@ -247,7 +248,8 @@ func (pq *postgreSQLStore) FindOne(index string) (*Job, error) {
 				jobs.task_arn,
 				ta.instance_id,
 				ta.public_ip,
-				ta.private_ip
+				ta.private_ip,
+				jobs.array_properties
 			FROM jobs
 			LEFT OUTER JOIN task_arns_to_instance_info ta ON
 			ta.task_arn = jobs.task_arn
@@ -268,7 +270,7 @@ func (pq *postgreSQLStore) FindOne(index string) (*Job, error) {
 		job.StatusReason = &sr
 	}
 
-	if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.InstanceID, &job.PublicIP, &job.PrivateIP); err != nil {
+	if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.InstanceID, &job.PublicIP, &job.PrivateIP, &job.ArrayProperties); err != nil {
 		log.Warning(err)
 		return nil, err
 	}
