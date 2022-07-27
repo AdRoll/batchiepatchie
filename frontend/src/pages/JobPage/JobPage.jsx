@@ -59,7 +59,13 @@ class JobPage extends React.Component {
         } = this.props;
 
         const job = jobsById[id];
-        const jobRegion = (job === undefined || job === null || job.task_arn === null) ? null : job.task_arn.split(":")[3];
+        let jobRegion = (job === undefined || job === null || job.task_arn === null) ? null : job.task_arn.split(":")[3];
+        if (!jobRegion && job && job.desc) {
+            const matches = /^arn:aws:batch:([^:]+)/.exec(job.desc);
+            if (matches) {
+                jobRegion = matches[1];
+            }
+        }
         const log = logsById[id] ? logsById[id].map(entry => entry.Message) : [];
         const terminalHeight = height - 440;
 
