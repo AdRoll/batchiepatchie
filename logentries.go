@@ -2,7 +2,7 @@ package main
 
 import (
 	// forked version to fix go mod issue
-	"github.com/AdRoll/logentriesrus"
+	"github.com/jcftang/logentriesrus"
 	log "github.com/sirupsen/logrus"
 )
 

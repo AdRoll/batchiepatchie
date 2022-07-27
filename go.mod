@@ -3,11 +3,11 @@ module github.com/AdRoll/batchiepatchie
 go 1.18
 
 require (
-	github.com/AdRoll/logentriesrus v0.0.0-20220725204358-770d67828388
 	github.com/BurntSushi/toml v1.2.0
 	github.com/aws/aws-sdk-go v1.44.62
 	github.com/bakatz/echo-logrusmiddleware v1.1.1
 	github.com/gorilla/websocket v1.5.0
+	github.com/jcftang/logentriesrus v0.0.0-20220725204439-b4dedce84d23
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.1
 	github.com/lib/pq v1.10.6
