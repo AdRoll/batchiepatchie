@@ -7815,10 +7815,10 @@ react-bootstrap@0.31.0:
     uncontrollable "^4.1.0"
     warning "^3.0.0"
 
-react-data-grid@4.0.8:
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/react-data-grid/-/react-data-grid-4.0.8.tgz#e67f73dde0d3c61bb38e41425603698ede442d18"
-  integrity sha512-APlFLSG6UKRHXE162yH+Rnn3J+i+rX2n7WCHKbQrYgzW57v9i+72gGrE22iLC2h/kPsGs40JcZmW3OOkRqkPxA==
+react-data-grid@^5.0.0:
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/react-data-grid/-/react-data-grid-5.0.5.tgz#529f5acd4750ae0461e9da66f9f30d6f597eed76"
+  integrity sha512-OR4LDoOpN4yj3NexaxYFS2OEIYFUk2V5lascPTHgtTMwwkb163tEPqQSertkv2YAJu+YBzIm8epW8+UMip1LPw==
 
 react-datetime@2.16.3:
   version "2.16.3"

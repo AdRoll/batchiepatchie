@@ -8,17 +8,13 @@ export default class RowRenderer extends React.Component {
     idx: PropTypes.number.isRequired
   };
 
-  setScrollLeft = (scrollBy) => {
-    this.row.setScrollLeft(scrollBy);
-  };
-
   getRowStyle = () => {
     return {
-      color: this.props.row.termination_requested ? "#FF0000" : "#000000"
+      color: this.props.row.termination_requested ? '#FF0000' : '#000000'
     };
   };
 
   render() {
-    return (<div style={ this.getRowStyle() }><Row ref={ node => this.row = node } {...this.props}/></div>);
+    return (<div style={ this.getRowStyle() }><Row ref={ node => this.row = node } { ...this.props }/></div>);
   }
 }

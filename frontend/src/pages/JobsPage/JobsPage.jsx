@@ -239,8 +239,12 @@ class JobsPage extends React.Component {
                                 values: this.props.selectedIds
                             }
                         }
-                    }}
-                    rowRenderer={RowRenderer}
+                    } }
+                    rowRenderer={ RowRenderer }
+                    // workaround for prop warnings:
+                    // https://github.com/adazzle/react-data-grid/issues/1403#issuecomment-499631101
+                    enableRowSelect={ null }
+                    rowScrollTimeout={ null }
                 />
 
                 <nav>
