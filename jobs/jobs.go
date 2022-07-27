@@ -70,13 +70,13 @@ type ArrayProperties struct {
 }
 
 // Value implements the driver.Valuer interface. This method
-// simply returns the JSON-encoded representation of the struct.
+// is needed for JSONB serialization to the database.
 func (a ArrayProperties) Value() (driver.Value, error) {
 	return json.Marshal(a)
 }
 
 // Scan implements the sql.Scanner interface. This method
-// simply decodes a JSON-encoded value into the struct fields.
+// is needed for JSONB deserialization from the database.
 func (a *ArrayProperties) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
