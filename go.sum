@@ -30,8 +30,6 @@ cloud.google.com/go/storage v1.5.0/go.mod h1:tpKbwo567HUNpVclU5sGELwQWBDZ8gh0Zeo
 cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohlUTyfDhBk=
 cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RXyy7KQOVs=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
-github.com/AdRoll/logentriesrus v0.0.0-20220725204358-770d67828388 h1:S+gXfNXVgIEuPR3AFbMeWthEy7HtOHh4OD8/B/QdAAs=
-github.com/AdRoll/logentriesrus v0.0.0-20220725204358-770d67828388/go.mod h1:nAcr9+ZojfSx1Mg77o+f/AJIBAkHowApDVap906rJHU=
 github.com/Azure/go-autorest/autorest v0.9.0/go.mod h1:xyHB1BMZT0cuDHU7I0+g046+BFDTQ8rEZB0s4Yfa6bI=
 github.com/Azure/go-autorest/autorest/adal v0.5.0/go.mod h1:8Z9fGy2MpX0PvDjB1pEgQTmVqjGhiHBW7RJJEciWzS0=
 github.com/Azure/go-autorest/autorest/date v0.1.0/go.mod h1:plvfp3oPSKwf2DNjlBjWF/7vwR+cUD/ELuzDCXwHUVA=
@@ -374,6 +372,8 @@ github.com/jackc/puddle v1.1.0/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dv
 github.com/jackc/puddle v1.1.1/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
 github.com/jackc/puddle v1.1.3/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
 github.com/jackc/puddle v1.2.0/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
+github.com/jcftang/logentriesrus v0.0.0-20220725204439-b4dedce84d23 h1:5fkpl3NdaJcND9i+sE2KYbUuENIQQ2XUmBlWxMWLjb0=
+github.com/jcftang/logentriesrus v0.0.0-20220725204439-b4dedce84d23/go.mod h1:/BlHyKL/iTrRc28aV9DPp3IZTIchJ7j179uofpXasTo=
 github.com/jinzhu/gorm v1.9.10/go.mod h1:Kh6hTsSGffh4ui079FHrR5Gg+5D0hgihqDcsDN2BBJY=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.0.1/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
