@@ -4,6 +4,9 @@ Package jobs implements the basic Job structure and related functionality
 package jobs
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -35,28 +38,63 @@ type JobStatus struct {
 }
 
 type Job struct {
-	Id                   string     `json:"id"`
-	Name                 string     `json:"name"`
-	Status               string     `json:"status"`
-	Description          string     `json:"desc"`
-	LastUpdated          time.Time  `json:"last_updated"`
-	JobQueue             string     `json:"job_queue"`
-	Image                string     `json:"image"`
-	CreatedAt            time.Time  `json:"created_at"`
-	StoppedAt            *time.Time `json:"stopped_at"`
-	VCpus                int64      `json:"vcpus"`
-	Memory               int64      `json:"memory"`
-	Timeout              int        `json:"timeout"`
-	CommandLine          string     `json:"command_line"`
-	StatusReason         *string    `json:"status_reason"`
-	RunStartTime         *time.Time `json:"run_start_time"`
-	ExitCode             *int64     `json:"exitcode"`
-	LogStreamName        *string    `json:"log_stream_name"`
-	TerminationRequested bool       `json:"termination_requested"`
-	TaskARN              *string    `json:"task_arn"`
-	InstanceID           *string    `json:"instance_id"`
-	PublicIP             *string    `json:"public_ip"`
-	PrivateIP            *string    `json:"private_ip"`
+	Id                   string           `json:"id"`
+	Name                 string           `json:"name"`
+	Status               string           `json:"status"`
+	Description          string           `json:"desc"`
+	LastUpdated          time.Time        `json:"last_updated"`
+	JobQueue             string           `json:"job_queue"`
+	Image                string           `json:"image"`
+	CreatedAt            time.Time        `json:"created_at"`
+	StoppedAt            *time.Time       `json:"stopped_at"`
+	VCpus                int64            `json:"vcpus"`
+	Memory               int64            `json:"memory"`
+	Timeout              int              `json:"timeout"`
+	CommandLine          string           `json:"command_line"`
+	StatusReason         *string          `json:"status_reason"`
+	RunStartTime         *time.Time       `json:"run_start_time"`
+	ExitCode             *int64           `json:"exitcode"`
+	LogStreamName        *string          `json:"log_stream_name"`
+	TerminationRequested bool             `json:"termination_requested"`
+	TaskARN              *string          `json:"task_arn"`
+	InstanceID           *string          `json:"instance_id"`
+	PublicIP             *string          `json:"public_ip"`
+	PrivateIP            *string          `json:"private_ip"`
+	ArrayProperties      *ArrayProperties `json:"array_properties,omitempty"`
+}
+
+// ArrayProperties are properties of a parent array job.
+type ArrayProperties struct {
+	Size          int64         `json:"size"`
+	StatusSummary StatusSummary `json:"status_summary"`
+}
+
+// Value implements the driver.Valuer interface. This method
+// simply returns the JSON-encoded representation of the struct.
+func (a ArrayProperties) Value() (driver.Value, error) {
+	return json.Marshal(a)
+}
+
+// Scan implements the sql.Scanner interface. This method
+// simply decodes a JSON-encoded value into the struct fields.
+func (a *ArrayProperties) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &a)
+}
+
+// StatusSummary is counts of statuses of child array jobs
+type StatusSummary struct {
+	Starting  int64 `json:"starting"`
+	Failed    int64 `json:"failed"`
+	Running   int64 `json:"running"`
+	Succeeded int64 `json:"succeeded"`
+	Runnable  int64 `json:"runnable"`
+	Submitted int64 `json:"submitted"`
+	Pending   int64 `json:"pending"`
 }
 
 // Options is the query options for the Find method to use

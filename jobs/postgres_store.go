@@ -387,6 +387,28 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 		defer final()
 		inserts_and_updates := 0
 		for _, job := range jobs {
+			extra_where_check := ""
+			if job.ArrayProperties != nil {
+				// extra_where_check is included in the update statement to minimize the number of updates.
+				extra_where_check = fmt.Sprintf(`
+					or jobs.array_properties is null
+					or (jobs.array_properties->'status_summary'->>'STARTING')::numeric != %d
+					or (jobs.array_properties->'status_summary'->>'FAILED')::numeric != %d
+					or (jobs.array_properties->'status_summary'->>'RUNNING')::numeric != %d
+					or (jobs.array_properties->'status_summary'->>'SUCCEEDED')::numeric != %d
+					or (jobs.array_properties->'status_summary'->>'RUNNABLE')::numeric != %d
+					or (jobs.array_properties->'status_summary'->>'SUBMITTED')::numeric != %d
+					or (jobs.array_properties->'status_summary'->>'PENDING')::numeric != %d
+					`,
+					job.ArrayProperties.StatusSummary.Starting,
+					job.ArrayProperties.StatusSummary.Failed,
+					job.ArrayProperties.StatusSummary.Running,
+					job.ArrayProperties.StatusSummary.Succeeded,
+					job.ArrayProperties.StatusSummary.Runnable,
+					job.ArrayProperties.StatusSummary.Submitted,
+					job.ArrayProperties.StatusSummary.Pending,
+				)
+			}
 			if job.StoppedAt == nil {
 				query := `insert into jobs (
 			  job_id,
@@ -405,10 +427,12 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 		          run_started_at,
 		          exitcode,
 		          log_stream_name,
-		          task_arn)
-			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-		      on conflict (job_id) do update set status = $6, last_updated = $12, status_reason = $13, run_started_at = $14, exitcode = $15, log_stream_name = $16, task_arn = $17
-		      where jobs.status <> $6 or jobs.status_reason <> $13 or jobs.exitcode <> $15 or jobs.log_stream_name <> $16 or jobs.task_arn <> $17 or (jobs.task_arn is null and $17 is not null) or (jobs.log_stream_name is null and $16 is not null) or (jobs.status_reason is null and $13 is not null) or (jobs.exitcode is null and $15 is not null)`
+		          task_arn,
+				  array_properties)
+			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+		      on conflict (job_id) do update set status = $6, last_updated = $12, status_reason = $13, run_started_at = $14, exitcode = $15, log_stream_name = $16, task_arn = $17, array_properties = $18
+		      where jobs.status <> $6 or jobs.status_reason <> $13 or jobs.exitcode <> $15 or jobs.log_stream_name <> $16 or jobs.task_arn <> $17 or (jobs.task_arn is null and $17 is not null) or (jobs.log_stream_name is null and $16 is not null) or (jobs.status_reason is null and $13 is not null) or (jobs.exitcode is null and $15 is not null)
+			  ` + extra_where_check
 				result, err := transaction.Exec(
 					query,
 					job.Id,
@@ -427,7 +451,8 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 					job.RunStartTime,
 					job.ExitCode,
 					job.LogStreamName,
-					job.TaskARN)
+					job.TaskARN,
+					job.ArrayProperties)
 				if err != nil {
 					log.Warning(err, ": ", job)
 					return err
@@ -457,10 +482,12 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 		          run_started_at,
 		          exitcode,
 		          log_stream_name,
-		          task_arn)
-			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-		      on conflict (job_id) do update set status = $6, last_updated = $13, stopped_at = $8, status_reason = $14, run_started_at = $15, exitcode = $16, log_stream_name = $17, task_arn = $18
-		      where jobs.status <> $6 or jobs.status_reason <> $14 or jobs.exitcode <> $16 or jobs.log_stream_name <> $17 or jobs.task_arn <> $18 or (jobs.task_arn is null and $18 is not null) or (jobs.log_stream_name is null and $17 is not null) or (jobs.status_reason is null and $14 is not null) or (jobs.exitcode is null and $16 is not null)`
+		          task_arn,
+				  array_properties)
+			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+		      on conflict (job_id) do update set status = $6, last_updated = $13, stopped_at = $8, status_reason = $14, run_started_at = $15, exitcode = $16, log_stream_name = $17, task_arn = $18, array_properties = $19
+		      where jobs.status <> $6 or jobs.status_reason <> $14 or jobs.exitcode <> $16 or jobs.log_stream_name <> $17 or jobs.task_arn <> $18 or (jobs.task_arn is null and $18 is not null) or (jobs.log_stream_name is null and $17 is not null) or (jobs.status_reason is null and $14 is not null) or (jobs.exitcode is null and $16 is not null)
+			  ` + extra_where_check
 				result, err := transaction.Exec(
 					query,
 					job.Id,
@@ -480,7 +507,8 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 					job.RunStartTime,
 					job.ExitCode,
 					job.LogStreamName,
-					job.TaskARN)
+					job.TaskARN,
+					job.ArrayProperties)
 				if err != nil {
 					log.Warning(err, ": ", job)
 					return err
