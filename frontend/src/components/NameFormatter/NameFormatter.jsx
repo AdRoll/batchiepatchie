@@ -1,8 +1,11 @@
 import React, { PropTypes } from 'react';
+import ReactTooltip from 'react-tooltip';
 
 export default class NameFormatter extends React.Component {
     static propTypes = {
         value: PropTypes.string.isRequired,
+        // dependentValues contains the row. It is typically set using getRowMetaData.
+        dependentValues: PropTypes.object,
         id: PropTypes.string
     };
 
@@ -16,9 +19,22 @@ export default class NameFormatter extends React.Component {
         if (!name.startsWith("pybatch-")) {
             adaptedName = name;
         }
-
+        const job = this.props.dependentValues;
         return (
-            <span>{ adaptedName }{ id && <span>&nbsp;({ id })</span> }</span>
+            <span>
+                { job && job.array_properties &&
+                    <span>
+                        <span data-tip data-for="aboutArrayJob" className="array-job-icon">
+                            ◱
+                        </span>
+                        <ReactTooltip id="aboutArrayJob" place="right" effect="solid">
+                            Parent Array Job
+                        </ReactTooltip>
+                    </span>
+                }
+                { adaptedName }
+                { id && <span>&nbsp;({ id })</span> }
+                </span>
         );
     }
 };

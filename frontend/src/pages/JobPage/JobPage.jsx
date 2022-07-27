@@ -108,7 +108,7 @@ class JobPage extends React.Component {
                 <div className='container-fluid'>
                     <div className='row'>
                         <div className='col-md-12'>
-                            <h2><NameFormatter value={ job.name } id={ job.id } /></h2>
+                            <h2><NameFormatter value={ job.name } id={ job.id } dependentValues={ job } /></h2>
                         </div>
                     </div>
 
