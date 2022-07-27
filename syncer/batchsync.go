@@ -208,25 +208,40 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 					}
 				}
 
+				var array_properties *jobs.ArrayProperties
+				is_parent_array_job := desc.ArrayProperties != nil && desc.ArrayProperties.Size != nil
+				if is_parent_array_job {
+					array_properties = new(jobs.ArrayProperties)
+					array_properties.Size = *desc.ArrayProperties.Size
+					array_properties.StatusSummary.Starting = *desc.ArrayProperties.StatusSummary["STARTING"]
+					array_properties.StatusSummary.Failed = *desc.ArrayProperties.StatusSummary["FAILED"]
+					array_properties.StatusSummary.Running = *desc.ArrayProperties.StatusSummary["RUNNING"]
+					array_properties.StatusSummary.Succeeded = *desc.ArrayProperties.StatusSummary["SUCCEEDED"]
+					array_properties.StatusSummary.Runnable = *desc.ArrayProperties.StatusSummary["RUNNABLE"]
+					array_properties.StatusSummary.Submitted = *desc.ArrayProperties.StatusSummary["SUBMITTED"]
+					array_properties.StatusSummary.Pending = *desc.ArrayProperties.StatusSummary["PENDING"]
+				}
+
 				jobs_to_insert = append(jobs_to_insert, &jobs.Job{
-					Id:            *job.JobId,
-					Name:          *job.JobName,
-					Status:        *desc.Status,
-					Description:   *desc.JobDefinition,
-					LastUpdated:   time.Now().UTC(),
-					JobQueue:      queue,
-					Image:         image,
-					CreatedAt:     time.Unix(*desc.CreatedAt/1000, (*desc.CreatedAt%1000)*1000000).UTC(),
-					StoppedAt:     stopped_at,
-					VCpus:         vcpus,
-					Memory:        memory,
-					CommandLine:   string(command_line_json),
-					Timeout:       timeout,
-					StatusReason:  &status_reason,
-					RunStartTime:  run_started_time,
-					ExitCode:      exit_code,
-					LogStreamName: log_stream_name,
-					TaskARN:       task_arn,
+					Id:              *job.JobId,
+					Name:            *job.JobName,
+					Status:          *desc.Status,
+					Description:     *desc.JobDefinition,
+					LastUpdated:     time.Now().UTC(),
+					JobQueue:        queue,
+					Image:           image,
+					CreatedAt:       time.Unix(*desc.CreatedAt/1000, (*desc.CreatedAt%1000)*1000000).UTC(),
+					StoppedAt:       stopped_at,
+					VCpus:           vcpus,
+					Memory:          memory,
+					CommandLine:     string(command_line_json),
+					Timeout:         timeout,
+					StatusReason:    &status_reason,
+					RunStartTime:    run_started_time,
+					ExitCode:        exit_code,
+					LogStreamName:   log_stream_name,
+					TaskARN:         task_arn,
+					ArrayProperties: array_properties,
 				})
 			}
 		}
