@@ -385,10 +385,8 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			return nil
 		}
 		defer final()
-
+		inserts_and_updates := 0
 		for _, job := range jobs {
-			var err error
-
 			if job.StoppedAt == nil {
 				query := `insert into jobs (
 			  job_id,
@@ -411,7 +409,7 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 		      on conflict (job_id) do update set status = $6, last_updated = $12, status_reason = $13, run_started_at = $14, exitcode = $15, log_stream_name = $16, task_arn = $17
 		      where jobs.status <> $6 or jobs.status_reason <> $13 or jobs.exitcode <> $15 or jobs.log_stream_name <> $16 or jobs.task_arn <> $17 or (jobs.task_arn is null and $17 is not null) or (jobs.log_stream_name is null and $16 is not null) or (jobs.status_reason is null and $13 is not null) or (jobs.exitcode is null and $15 is not null)`
-				_, err = transaction.Exec(
+				result, err := transaction.Exec(
 					query,
 					job.Id,
 					job.Name,
@@ -430,6 +428,16 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 					job.ExitCode,
 					job.LogStreamName,
 					job.TaskARN)
+				if err != nil {
+					log.Warning(err, ": ", job)
+					return err
+				}
+				n, err := result.RowsAffected()
+				if err != nil {
+					log.Warning(err, ": ", job)
+					return err
+				}
+				inserts_and_updates += int(n)
 			} else {
 				query := `insert into jobs (
 			  job_id,
@@ -453,7 +461,7 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 		      on conflict (job_id) do update set status = $6, last_updated = $13, stopped_at = $8, status_reason = $14, run_started_at = $15, exitcode = $16, log_stream_name = $17, task_arn = $18
 		      where jobs.status <> $6 or jobs.status_reason <> $14 or jobs.exitcode <> $16 or jobs.log_stream_name <> $17 or jobs.task_arn <> $18 or (jobs.task_arn is null and $18 is not null) or (jobs.log_stream_name is null and $17 is not null) or (jobs.status_reason is null and $14 is not null) or (jobs.exitcode is null and $16 is not null)`
-				_, err = transaction.Exec(
+				result, err := transaction.Exec(
 					query,
 					job.Id,
 					job.Name,
@@ -473,13 +481,19 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 					job.ExitCode,
 					job.LogStreamName,
 					job.TaskARN)
-			}
-
-			if err != nil {
-				log.Warning(err, ": ", job)
-				return err
+				if err != nil {
+					log.Warning(err, ": ", job)
+					return err
+				}
+				n, err := result.RowsAffected()
+				if err != nil {
+					log.Warning(err, ": ", job)
+					return err
+				}
+				inserts_and_updates += int(n)
 			}
 		}
+		log.Info(fmt.Sprintf("Inserted/updated %d rows", inserts_and_updates))
 		should_commit = true
 		return nil
 	}()
