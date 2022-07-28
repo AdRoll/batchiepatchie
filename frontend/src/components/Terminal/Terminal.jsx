@@ -21,6 +21,7 @@ export default class Terminal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            // key for the List component. This is incremented to force-refresh the List component.
             listKey: 0,
         };
     }
