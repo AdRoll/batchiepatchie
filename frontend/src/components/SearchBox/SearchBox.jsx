@@ -99,6 +99,8 @@ export default class SearchBox extends React.Component {
     /**
      * Looks in the rows for the search text and returns the index of the next matching row,
      * or -1 if not found.
+     *
+     * delta is +1 for Next and -1 for Prev.
      */
     find = (searchText, currentSearchRow, delta) => {
         const { rows } = this.props;
