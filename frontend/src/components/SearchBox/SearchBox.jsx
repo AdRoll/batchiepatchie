@@ -3,7 +3,7 @@ import debounce from 'utils/debounce';
 import './SearchBox.scss';
 
 /**
- * A search field with next and previou buttons
+ * A search field with next and previous buttons
  */
 export default class SearchBox extends React.Component {
     static propTypes = {
