@@ -72,6 +72,8 @@ export default class SearchBox extends React.Component {
         const newSearchRow = this.find(searchText, currentSearchRow, 1);
         if (newSearchRow === -1) {
             this.setState({notFound: true});
+            // Don't set currentSearchRow to -1 if the user tries to go past the last occurrence.
+            // Just leave them at the last occurrence.
         } else {
             this.setState({notFound: false, currentSearchRow: newSearchRow});
             onSearchChanged(searchText, newSearchRow);
@@ -90,6 +92,8 @@ export default class SearchBox extends React.Component {
         const newSearchRow = this.find(searchText, currentSearchRow, -1);
         if (newSearchRow === -1) {
             this.setState({notFound: true});
+            // Don't set currentSearchRow to -1 if the user tries to go past the first occurrence.
+            // Just leave them at the first occurrence.
         } else {
             this.setState({notFound: false, currentSearchRow: newSearchRow});
             onSearchChanged(searchText, newSearchRow);
