@@ -88,3 +88,14 @@ pre {
 .Select-menu {
     max-height: 400px;
 }
+
+// override stickiness of checkbox-select frozen header row:
+// https://github.com/adazzle/react-data-grid/issues/1386#issuecomment-510532495
+// the full select column isn't frozen so alignment gets off during horizontal scrolling
+.react-grid-Row .react-grid-Cell--frozen {
+    transform: translate3d(0px, 0px, 0px) !important;
+}
+
+.react-grid-HeaderRow .react-grid-HeaderCell--frozen {
+    transform: translate3d(0px, 0px, 0px) !important;
+}
