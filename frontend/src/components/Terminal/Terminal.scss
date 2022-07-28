@@ -13,10 +13,12 @@
         color: #333;
     }
 
+    // Color it orange if it is the current search result.
     .current-search-result {
         background-color: orange;
     }
 
+    // If it is a search result on a different line, color it yellow.
     mark, .mark {
         background-color: yellow;
     }
