@@ -8,7 +8,7 @@ import './LayoutContainer.scss';
 class LayoutContainer extends React.Component {
     static propTypes = {
         children: PropTypes.element.isRequired,
-        location: PropTypes.object.isRequired,
+        path: PropTypes.string.isRequired,
         setPageDimensions: PropTypes.func.isRequired
     };
 
@@ -22,7 +22,7 @@ class LayoutContainer extends React.Component {
     }
 
     render() {
-        const onJobsPage = this.props.location.pathname === '/';
+        const onJobsPage = this.props.path === process.env.BASE_URL + '/';
         return (
             <div className='layout-container container-fluid'>
                 <div className='row'>
@@ -54,7 +54,9 @@ class LayoutContainer extends React.Component {
     }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+    path: state.routing.locationBeforeTransitions.pathname
+});
 
 const actions = {
     setPageDimensions
