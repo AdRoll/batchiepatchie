@@ -70,6 +70,7 @@ class JobPage extends React.Component {
             status
         } = this.props;
         const { autoScrollToBottom, searchText, currentSearchRow } = this.state;
+
         const job = jobsById[id];
         let jobRegion = (job === undefined || job === null || job.task_arn === null) ? null : job.task_arn.split(":")[3];
         if (!jobRegion && job && job.desc) {
