@@ -11,22 +11,48 @@ export default class Terminal extends React.Component {
     static propTypes = {
         height: PropTypes.number.isRequired,
         autoScrollToBottom: PropTypes.bool.isRequired,
+        // Search text to highlight.
+        searchText: PropTypes.string.isRequired,
+        // Index of the row with the current search result, or -1 if not found.
+        currentSearchRow: PropTypes.number.isRequired,
         log: PropTypes.array.isRequired
     };
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            listKey: 0,
+        };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.searchText !== this.props.searchText || prevProps.currentSearchRow !== this.props.currentSearchRow) {
+            // If the search text or current search row changes, force-update the List so that the
+            // Highlighter will re-render. The List is pretty aggressive about not rendering
+            // when it doesn't have to.
+            const { listKey } = this.state;
+            this.setState({listKey: listKey + 1})
+        }
+        window.as = this.refs.AutoSizer;
+    }
+
     render() {
-        const { log, height, autoScrollToBottom } = this.props;
+        const { log, height, autoScrollToBottom, currentSearchRow } = this.props;
+        const { listKey } = this.state;
         const maxLength = log.reduce((memo, item) => Math.max(memo, item.length), 0);
         let listProps = {};
+        if (currentSearchRow > -1) {
+            listProps = { scrollToIndex: currentSearchRow };
+        }
         if (autoScrollToBottom) {
             listProps = { scrollToIndex: log.length-1 };
         }
         return (
             <div className='terminal'>
-                <AutoSizer disableHeight>
+                <AutoSizer disableHeight ref='AutoSizer'>
                     { ({ width }) => (
                         <List
-                            ref='List'
+                            key={listKey}
                             height={ height }
                             overscanRowCount={ 30 }
                             noRowsRenderer={ this.noRowsRenderer }
@@ -43,14 +69,13 @@ export default class Terminal extends React.Component {
     }
 
     rowRenderer = ({ index, key, style }) => {
+        const { searchText, currentSearchRow } = this.props;
+        const searchWords = searchText ? [searchText] : [];
         return (
             <pre key={ key } style={ style }>
                 <Highlighter
-                    highlightClassName="error"
-                    searchWords={ [
-                        "ERROR",
-                        "WARNING",
-                    ] }
+                    highlightClassName={index === currentSearchRow ? 'current-search-result' : ''}
+                    searchWords={ searchWords }
                     textToHighlight={ this.props.log[index] }/>
             </pre>)
     }

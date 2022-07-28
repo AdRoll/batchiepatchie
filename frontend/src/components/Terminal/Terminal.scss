@@ -12,8 +12,12 @@
         margin-right: 6px;
         color: #333;
     }
-}
 
-.error {
-    color: #441f0c;
+    .current-search-result {
+        background-color: orange;
+    }
+
+    mark, .mark {
+        background-color: yellow;
+    }
 }
