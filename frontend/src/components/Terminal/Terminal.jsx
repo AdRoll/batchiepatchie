@@ -33,7 +33,6 @@ export default class Terminal extends React.Component {
             const { listKey } = this.state;
             this.setState({listKey: listKey + 1})
         }
-        window.as = this.refs.AutoSizer;
     }
 
     render() {
@@ -49,7 +48,7 @@ export default class Terminal extends React.Component {
         }
         return (
             <div className='terminal'>
-                <AutoSizer disableHeight ref='AutoSizer'>
+                <AutoSizer disableHeight>
                     { ({ width }) => (
                         <List
                             key={listKey}
