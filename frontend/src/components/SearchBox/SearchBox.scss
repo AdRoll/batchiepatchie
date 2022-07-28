@@ -1,0 +1,14 @@
+.search-box {
+    display: inline-block;
+    margin-left: 12px;
+
+    input {
+        margin-left: 6px;
+        margin-right: 6px;
+        width: 200px;
+    }
+
+    .search-not-found {
+        margin-left: 6px;
+    }
+}

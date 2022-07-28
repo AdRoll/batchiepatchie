@@ -17,6 +17,7 @@ import DateTimeFormatter from 'components/DateTimeFormatter/DateTimeFormatter';
 import DurationFormatter from 'components/DurationFormatter/DurationFormatter';
 import SectionLoader from 'components/SectionLoader/SectionLoader';
 import Terminal from 'components/Terminal/Terminal';
+import SearchBox from 'components/SearchBox/SearchBox';
 import numeral from 'numeral';
 import './JobPage.scss';
 
@@ -36,6 +37,10 @@ class JobPage extends React.Component {
         super(props);
         this.state = {
             autoScrollToBottom: true,
+            // Search text to highlight.
+            searchText: '',
+            // Index of the row with the current search result, or -1 if not found.
+            currentSearchRow: -1,
         };
     }
 
@@ -64,7 +69,7 @@ class JobPage extends React.Component {
             height,
             status
         } = this.props;
-        const { autoScrollToBottom } = this.state;
+        const { autoScrollToBottom, searchText, currentSearchRow } = this.state;
 
         const job = jobsById[id];
         let jobRegion = (job === undefined || job === null || job.task_arn === null) ? null : job.task_arn.split(":")[3];
@@ -373,18 +378,29 @@ class JobPage extends React.Component {
                             <h2>Logs</h2>
                             <label className="auto-scroll-checkbox">
                                 <input type="checkbox"
-                                    defaultChecked={autoScrollToBottom}
+                                    checked={autoScrollToBottom}
                                     onChange={() => this.setState({autoScrollToBottom: !autoScrollToBottom})}
                                 />
                                 Auto-scroll to bottom
                             </label>
+                            <SearchBox
+                                rows={ log }
+                                onSearchChanged={(searchText, currentSearchRow) => this.setState(
+                                    {searchText, currentSearchRow, autoScrollToBottom: false})}
+                            />
                             { logStatus.loading && <SectionLoader /> }
                         </div>
                     </div>
 
                     <div className='row'>
                         <div className='col-md-12'>
-                            <Terminal log={ log } height={ terminalHeight } autoScrollToBottom={ autoScrollToBottom } />
+                            <Terminal
+                                log={ log }
+                                height={ terminalHeight }
+                                autoScrollToBottom={ autoScrollToBottom }
+                                searchText={ searchText }
+                                currentSearchRow={ currentSearchRow }
+                            />
                         </div>
                     </div>
                 </div>
