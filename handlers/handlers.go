@@ -212,7 +212,7 @@ func (s *Server) FetchLogs(c echo.Context) error {
 			continue
 		}
 		logStreams, err = svc.DescribeLogStreams(&cloudwatchlogs.DescribeLogStreamsInput{
-			LogGroupName:        aws.String(LOG_GROUP_NAME),
+			LogGroupName:        job.LogGroupName,//aws.String(LOG_GROUP_NAME),
 			LogStreamNamePrefix: aws.String(*name),
 		})
 		if err != nil || len(logStreams.LogStreams) <= 0 {
@@ -247,14 +247,14 @@ func (s *Server) FetchLogs(c echo.Context) error {
 
 		if nextToken != nil {
 			logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  aws.String(LOG_GROUP_NAME),
+				LogGroupName:  job.LogGroupName,//aws.String(LOG_GROUP_NAME),
 				LogStreamName: logStreams.LogStreams[0].LogStreamName,
 				StartFromHead: &startFromHead,
 				NextToken:     nextToken,
 			})
 		} else {
 			logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  aws.String(LOG_GROUP_NAME),
+				LogGroupName:  job.LogGroupName,//aws.String(LOG_GROUP_NAME),
 				LogStreamName: logStreams.LogStreams[0].LogStreamName,
 				StartFromHead: &startFromHead,
 			})

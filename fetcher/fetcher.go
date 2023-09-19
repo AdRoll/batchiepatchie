@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	log "github.com/sirupsen/logrus"
 )
 
 var s3Regex = regexp.MustCompile("^s3://([^/]+)/(.+)$")
@@ -29,6 +30,7 @@ func ReadAllNoSessions(location string) ([]byte, error) {
 		return nil, err
 	}
 	session := session.Must(session.NewSession(&aws.Config{Region: aws.String(region_loc)}))
+
 	s3s := s3.New(session)
 
 	result, err := s3s.GetObject(&s3.GetObjectInput{
