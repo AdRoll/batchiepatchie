@@ -247,14 +247,14 @@ func (s *Server) FetchLogs(c echo.Context) error {
 
 		if nextToken != nil {
 			logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  job.LogGroupName,//aws.String(LOG_GROUP_NAME),
+				LogGroupName:  job.LogGroupName,
 				LogStreamName: logStreams.LogStreams[0].LogStreamName,
 				StartFromHead: &startFromHead,
 				NextToken:     nextToken,
 			})
 		} else {
 			logEvents, err2 = svc.GetLogEvents(&cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  job.LogGroupName,//aws.String(LOG_GROUP_NAME),
+				LogGroupName:  job.LogGroupName,
 				LogStreamName: logStreams.LogStreams[0].LogStreamName,
 				StartFromHead: &startFromHead,
 			})
