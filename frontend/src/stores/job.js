@@ -502,13 +502,6 @@ export function fetchLogs(id) {
     };
 };
 
-export function setLocationToSearch() {
-    return (dispatch, getState) => {
-        const state = getState();
-        dispatch(push(`/?q=${state.job.q}`));
-    };
-};
-
 export function fetchJobs() {
     return (dispatch, getState) => {
         const state = getState();

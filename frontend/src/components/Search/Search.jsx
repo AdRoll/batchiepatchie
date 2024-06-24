@@ -4,7 +4,6 @@ import ReactTooltip from 'react-tooltip';
 import debounce from 'utils/debounce';
 import {
     setParams,
-    setLocationToSearch
 } from 'stores/job';
 import SectionLoader from 'components/SectionLoader/SectionLoader';
 import {
@@ -53,7 +52,6 @@ class Search extends React.Component {
                                 type='text'
                                 className='form-control'
                                 onChange={ this.onChange }
-                                onKeyPress={ this.onKeyPress }
                                 value={ qTemp }
                                 placeholder='Search Jobs...'
                             />
@@ -72,12 +70,6 @@ class Search extends React.Component {
     search = debounce((q) => {
         this.props.setParams({q});
     }, 500)
-
-    onKeyPress = (e) => {
-        if (e.key === 'Enter' && this.props.statusKey !== JOBS) {
-            this.props.setLocationToSearch();
-        }
-    }
 };
 
 const mapStateToProps = state => {
@@ -91,7 +83,6 @@ const mapStateToProps = state => {
 
 const actions = {
     setParams,
-    setLocationToSearch
 };
 
 export default connect(mapStateToProps, actions)(Search);
