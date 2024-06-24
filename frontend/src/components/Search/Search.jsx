@@ -57,16 +57,6 @@ class Search extends React.Component {
                                 value={ qTemp }
                                 placeholder='Search Jobs...'
                             />
-                            <div className='search-info'>
-                                <div data-tip data-for="aboutSearch">
-                                    ℹ️
-                                </div>
-
-                                <ReactTooltip id="aboutSearch" place="left" effect="solid">
-                                    Search is case-insensitive, partial-word, AND search on individual words.<br />
-                                    The following fields are searched: ID, Name, Image, and Queue.
-                                </ReactTooltip>
-                            </div>
                         </div>
                     </div>
                 </div>
