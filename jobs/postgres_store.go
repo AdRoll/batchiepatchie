@@ -105,7 +105,7 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 
 	// Split search into tokens (separated by whitespace). We will search for each token separately.
 	// If search is empty or only whitespace, tokens will be an empty array.
-	tokens := strings.Fields(opts.Search)
+	tokens := strings.Fields(opts.StartsWith)
 	for _, token := range tokens {
 		glob_search := "%" + searchEscape(token) + "%"
 		args = append(args, glob_search)

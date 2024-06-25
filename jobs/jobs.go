@@ -99,13 +99,13 @@ type StatusSummary struct {
 
 // Options is the query options for the Find method to use
 type Options struct {
-	Search  string
-	Limit   int
-	Offset  int
-	Queues  []string
-	SortBy  string
-	SortAsc bool
-	Status  []string
+	StartsWith string
+	Limit      int
+	Offset     int
+	Queues     []string
+	SortBy     string
+	SortAsc    bool
+	Status     []string
 }
 
 type JobStatsOptions struct {

@@ -41,13 +41,13 @@ type KillTasks struct {
 	IDs []string `json:"ids" form:"ids" query:"ids"`
 }
 
-// Find is a request handler, returns json with jobs matching the query param 'q'
+// Find is a request handler, returns json with jobs matching the query param 'startsWith'
 func (s *Server) Find(c echo.Context) error {
 	span := opentracing.StartSpan("API.Find")
 	defer span.Finish()
 
 	c.QueryParams()
-	search := c.QueryParam("q")
+	startsWith := c.QueryParam("startsWith")
 	queuesStr := c.QueryParam("queue")
 	statusStr := c.QueryParam("status")
 	column := c.QueryParam("sortColumn")
@@ -69,13 +69,13 @@ func (s *Server) Find(c echo.Context) error {
 	}
 
 	foundJobs, err := s.Storage.Find(&jobs.Options{
-		Search:  search,
-		Limit:   defaultQueryLimit,
-		Offset:  page * defaultQueryLimit,
-		Queues:  queues,
-		SortBy:  column,
-		SortAsc: sort,
-		Status:  status,
+		StartsWith: startsWith,
+		Limit:      defaultQueryLimit,
+		Offset:     page * defaultQueryLimit,
+		Queues:     queues,
+		SortBy:     column,
+		SortAsc:    sort,
+		Status:     status,
 	})
 
 	if err != nil {
@@ -110,7 +110,7 @@ func (s *Server) GetStatus(c echo.Context) error {
 	}
 }
 
-// FindOne is a request handler, returns a job matching the query parameter 'q'
+// FindOne is a request handler, returns a job matching the query parameter 'id'
 func (s *Server) FindOne(c echo.Context) error {
 	span := opentracing.StartSpan("API.FindOne")
 	defer span.Finish()

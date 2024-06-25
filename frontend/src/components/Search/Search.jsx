@@ -26,7 +26,7 @@ function getStatusKey(path) {
 class Search extends React.Component {
     static propTypes = {
         loading: PropTypes.bool.isRequired,
-        qTemp: PropTypes.string.isRequired,
+        startsWithTemp: PropTypes.string.isRequired,
         setParams: PropTypes.func.isRequired,
         statusKey: PropTypes.string.isRequired,
     };
@@ -34,7 +34,7 @@ class Search extends React.Component {
     render() {
         const {
             loading,
-            qTemp
+            startsWithTemp
         } = this.props;
 
         return (
@@ -52,9 +52,9 @@ class Search extends React.Component {
                                 type='text'
                                 className='form-control'
                                 onChange={ this.onChange }
-                                onKeyDown={ this.onKeyDown }
-                                value={ qTemp }
-                                placeholder='Search Jobs...'
+                                onKeyDown={ this.onStartsWithKeyDown }
+                                value={ startsWithTemp }
+                                placeholder='Starts with...'
                             />
                         </div>
                     </div>
@@ -64,12 +64,12 @@ class Search extends React.Component {
     }
 
     onChange = (e) => {
-        this.props.setParams({qTemp: e.target.value});
+        this.props.setParams({startsWithTemp: e.target.value});
     }
 
-    onKeyDown = (e) => {
+    onStartsWithKeyDown = (e) => {
         if (e.key === 'Enter') {
-            this.props.setParams({q: e.target.value});
+            this.props.setParams({startsWith: e.target.value});
         }
     }
 };
@@ -78,7 +78,7 @@ const mapStateToProps = state => {
     const statusKey = getStatusKey(state.routing.locationBeforeTransitions.pathname);
     return {
         statusKey,
-        qTemp: state.job.qTemp,
+        startsWithTemp: state.job.startsWithTemp,
         loading: state.status[statusKey].loading
     };
 };

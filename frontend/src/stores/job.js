@@ -22,8 +22,8 @@ export const SET_JOBS = 'SET_JOBS';
 export const SET_LOGS = 'SET_LOGS';
 export const SET_PAGE = 'SET_PAGE';
 export const SET_QUEUES = 'SET_QUEUES';
-export const SET_SEARCH = 'SET_SEARCH';
-export const SET_SEARCH_TEMP = 'SET_SEARCH_TEMP';
+export const SET_STARTS_WITH = 'SET_STARTS_WITH';
+export const SET_STARTS_WITH_TEMP = 'SET_STARTS_WITH_TEMP';
 export const SET_SELECTED_IDS = 'SET_SELECTED_IDS';
 export const SET_SELECTED_QUEUE = 'SET_SELECTED_QUEUE';
 export const SET_SELECTED_STATUS = 'SET_SELECTED_STATUS';
@@ -116,7 +116,7 @@ export const QUERY_PARAM_DEFAULTS = {
     endDate,
     graphType: 'area',
     page: 0,
-    q: '',
+    startsWith: '',
     selectedIds: [],
     selectedQueue: '',
     selectedStatus: '',
@@ -134,8 +134,8 @@ const initialState = {
     jobsById: {},
     logsById: {},
     page: 0,
-    q: '',
-    qTemp: '',
+    startsWith: '',
+    startsWithTemp: '',
     queues: [],
     selectedIds: [],
     selectedQueue: 'all',
@@ -207,17 +207,17 @@ actions[SET_PAGE] = (state, { payload }) => {
     };
 };
 
-actions[SET_SEARCH] = (state, { payload }) => {
+actions[SET_STARTS_WITH] = (state, { payload }) => {
     return {
         ...state,
-        q: payload
+        startsWith: payload
     };
 };
 
-actions[SET_SEARCH_TEMP] = (state, { payload }) => {
+actions[SET_STARTS_WITH_TEMP] = (state, { payload }) => {
     return {
         ...state,
-        qTemp: payload
+        startsWithTemp: payload
     };
 };
 
@@ -324,17 +324,17 @@ export function setPage(page) {
     };
 };
 
-export function setSearch(q) {
+export function setStartsWith(startsWith) {
     return {
-        type: SET_SEARCH,
-        payload: q
+        type: SET_STARTS_WITH,
+        payload: startsWith
     };
 };
 
-export function setSearchTemp(qTemp) {
+export function setStartsWithTemp(startsWithTemp) {
     return {
-        type: SET_SEARCH_TEMP,
-        payload: qTemp
+        type: SET_STARTS_WITH_TEMP,
+        payload: startsWithTemp
     };
 }
 
@@ -416,11 +416,11 @@ export function setParams(params) {
         if (params.sortColumn && params.sortDirection)
             dispatch(setSortParams(params.sortColumn, params.sortDirection));
 
-        if (params.q !== undefined)
-            dispatch(setSearch(params.q));
+        if (params.startsWith !== undefined)
+            dispatch(setStartsWith(params.startsWith));
 
-        if (params.qTemp !== undefined)
-            dispatch(setSearchTemp(params.qTemp));
+        if (params.startsWithTemp !== undefined)
+            dispatch(setStartsWithTemp(params.startsWithTemp));
 
         if (params.page !== undefined)
             dispatch(setPage(params.page));
@@ -507,7 +507,7 @@ export function fetchJobs() {
         const state = getState();
         const params = {
             page: state.job.page,
-            q: state.job.q,
+            startsWith: state.job.startsWith,
             sortDirection: state.job.sortDirection,
             sortColumn: state.job.sortColumn
         };
