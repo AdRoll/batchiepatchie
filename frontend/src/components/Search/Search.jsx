@@ -52,6 +52,7 @@ class Search extends React.Component {
                                 type='text'
                                 className='form-control'
                                 onChange={ this.onChange }
+                                onKeyDown={ this.onKeyDown }
                                 value={ qTemp }
                                 placeholder='Search Jobs...'
                             />
@@ -64,12 +65,13 @@ class Search extends React.Component {
 
     onChange = (e) => {
         this.props.setParams({qTemp: e.target.value});
-        this.search(e.target.value);
     }
 
-    search = debounce((q) => {
-        this.props.setParams({q});
-    }, 500)
+    onKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            this.props.setParams({q: e.target.value});
+        }
+    }
 };
 
 const mapStateToProps = state => {
