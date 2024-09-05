@@ -122,14 +122,16 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 				}
 
 				timeout := -1
-				for _, value := range desc.Container.Environment {
-					if *value.Name == "PYBATCH_TIMEOUT" {
-						timeout, err = strconv.Atoi(*value.Value)
-						if err != nil {
-							timeout = -1
-							log.Warning("PYBATCH_TIMEOUT contains unparseable ", value.Value, " : ", err)
+				if desc.Container != nil {
+					for _, value := range desc.Container.Environment {
+						if *value.Name == "PYBATCH_TIMEOUT" {
+							timeout, err = strconv.Atoi(*value.Value)
+							if err != nil {
+								timeout = -1
+								log.Warning("PYBATCH_TIMEOUT contains unparseable ", value.Value, " : ", err)
+							}
+							break
 						}
-						break
 					}
 				}
 
@@ -140,10 +142,13 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 					stopped_at = &tmp
 				}
 
-				command_line_json, err := json.Marshal(desc.Container.Command)
-				if err != nil {
-					log.Warning("Cannot marshal command line to JSON: ", err)
-					continue
+				command_line_json := []byte{}
+				if desc.Container != nil {
+					command_line_json, err = json.Marshal(desc.Container.Command)
+					if err != nil {
+						log.Warning("Cannot marshal command line to JSON: ", err)
+						continue
+					}
 				}
 
 				status_reason := ""
@@ -183,11 +188,11 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 					}
 				}
 
-				if log_stream_name == nil && desc.Container.LogStreamName != nil {
+				if log_stream_name == nil && desc.Container != nil && desc.Container.LogStreamName != nil {
 					var lsn = *desc.Container.LogStreamName
 					log_stream_name = &lsn
 				}
-				if (task_arn == nil || *task_arn == "") && desc.Container.TaskArn != nil {
+				if (task_arn == nil || *task_arn == "") && desc.Container != nil && desc.Container.TaskArn != nil {
 					task_arn_c := *desc.Container.TaskArn
 					task_arn = &task_arn_c
 				}
