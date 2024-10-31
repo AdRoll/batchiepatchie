@@ -101,7 +101,26 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 	args = append(args, opts.Limit)
 	args = append(args, opts.Offset)
 
-	whereClausesScan = append(whereClausesScan, "last_updated > (now() - interval '30 days')")
+	var interval string
+	switch opts.DateRange {
+	case "10m":
+		interval = "10 minutes"
+	case "1h":
+		interval = "1 hour"
+	case "1d":
+		interval = "1 day"
+	case "2d":
+		interval = "2 days"
+	case "3d":
+		interval = "3 days"
+	case "7d":
+		interval = "7 days"
+	case "30d":
+		interval = "30 days"
+	default:
+		interval = "30 days"
+	}
+	whereClausesScan = append(whereClausesScan, fmt.Sprintf("last_updated > (now() - interval '%s')", interval))
 
 	// Split search into tokens (separated by whitespace). We will search for each token separately.
 	// If search is empty or only whitespace, tokens will be an empty array.

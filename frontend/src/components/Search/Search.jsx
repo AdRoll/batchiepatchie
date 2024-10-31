@@ -28,6 +28,7 @@ class Search extends React.Component {
     static propTypes = {
         loading: PropTypes.bool.isRequired,
         qTemp: PropTypes.string.isRequired,
+        dateRange: PropTypes.string.isRequired,
         setParams: PropTypes.func.isRequired,
         statusKey: PropTypes.string.isRequired,
     };
@@ -35,7 +36,8 @@ class Search extends React.Component {
     render() {
         const {
             loading,
-            qTemp
+            qTemp,
+            dateRange
         } = this.props;
 
         return (
@@ -44,7 +46,22 @@ class Search extends React.Component {
                     <div className='col-md-3'>
                         { loading && <SectionLoader /> }
                     </div>
-                    <div className='col-md-9'>
+                    <div className='col-md-3'>
+                        <select
+                            className="form-control"
+                            value={dateRange}
+                            onChange={this.onDateRangeChanged}
+                        >
+                            <option value="10m">The past 10 minutes</option>
+                            <option value="1h">The past hour</option>
+                            <option value="1d">The past day</option>
+                            <option value="2d">The past 2 days</option>
+                            <option value="3d">The past 3 days</option>
+                            <option value="7d">The past 7 days</option>
+                            <option value="30d">The past 30 days</option>
+                        </select>
+                    </div>
+                    <div className='col-md-6'>
                         <div className='input-group'>
                             <span className='input-group-addon'>
                                 <i className='fa fa-search' />
@@ -79,6 +96,10 @@ class Search extends React.Component {
         this.search(e.target.value);
     }
 
+    onDateRangeChanged = (e) => {
+        this.props.setParams({dateRange: e.target.value});
+    }
+
     search = debounce((q) => {
         this.props.setParams({q});
     }, 500)
@@ -95,6 +116,7 @@ const mapStateToProps = state => {
     return {
         statusKey,
         qTemp: state.job.qTemp,
+        dateRange: state.job.dateRange,
         loading: state.status[statusKey].loading
     };
 };
