@@ -48,6 +48,7 @@ func (s *Server) Find(c echo.Context) error {
 
 	c.QueryParams()
 	search := c.QueryParam("q")
+	dateRange := c.QueryParam("dateRange")
 	queuesStr := c.QueryParam("queue")
 	statusStr := c.QueryParam("status")
 	column := c.QueryParam("sortColumn")
@@ -69,13 +70,14 @@ func (s *Server) Find(c echo.Context) error {
 	}
 
 	foundJobs, err := s.Storage.Find(&jobs.Options{
-		Search:  search,
-		Limit:   defaultQueryLimit,
-		Offset:  page * defaultQueryLimit,
-		Queues:  queues,
-		SortBy:  column,
-		SortAsc: sort,
-		Status:  status,
+		Search:    search,
+		DateRange: dateRange,
+		Limit:     defaultQueryLimit,
+		Offset:    page * defaultQueryLimit,
+		Queues:    queues,
+		SortBy:    column,
+		SortAsc:   sort,
+		Status:    status,
 	})
 
 	if err != nil {
