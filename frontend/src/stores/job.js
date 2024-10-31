@@ -24,6 +24,7 @@ export const SET_PAGE = 'SET_PAGE';
 export const SET_QUEUES = 'SET_QUEUES';
 export const SET_SEARCH = 'SET_SEARCH';
 export const SET_SEARCH_TEMP = 'SET_SEARCH_TEMP';
+export const SET_DATE_RANGE = 'SET_DATE_RANGE';
 export const SET_SELECTED_IDS = 'SET_SELECTED_IDS';
 export const SET_SELECTED_QUEUE = 'SET_SELECTED_QUEUE';
 export const SET_SELECTED_STATUS = 'SET_SELECTED_STATUS';
@@ -117,6 +118,7 @@ export const QUERY_PARAM_DEFAULTS = {
     graphType: 'area',
     page: 0,
     q: '',
+    dateRange: '1d',
     selectedIds: [],
     selectedQueue: '',
     selectedStatus: '',
@@ -135,6 +137,7 @@ const initialState = {
     logsById: {},
     page: 0,
     q: '',
+    dateRange: '1d',
     qTemp: '',
     queues: [],
     selectedIds: [],
@@ -211,6 +214,13 @@ actions[SET_SEARCH] = (state, { payload }) => {
     return {
         ...state,
         q: payload
+    };
+};
+
+actions[SET_DATE_RANGE] = (state, { payload }) => {
+    return {
+        ...state,
+        dateRange: payload
     };
 };
 
@@ -331,6 +341,13 @@ export function setSearch(q) {
     };
 };
 
+export function setDateRange(dateRange) {
+    return {
+        type: SET_DATE_RANGE,
+        payload: dateRange
+    };
+};
+
 export function setSearchTemp(qTemp) {
     return {
         type: SET_SEARCH_TEMP,
@@ -418,6 +435,9 @@ export function setParams(params) {
 
         if (params.q !== undefined)
             dispatch(setSearch(params.q));
+
+        if (params.dateRange !== undefined)
+            dispatch(setDateRange(params.dateRange));
 
         if (params.qTemp !== undefined)
             dispatch(setSearchTemp(params.qTemp));
@@ -515,6 +535,7 @@ export function fetchJobs() {
         const params = {
             page: state.job.page,
             q: state.job.q,
+            dateRange: state.job.dateRange,
             sortDirection: state.job.sortDirection,
             sortColumn: state.job.sortColumn
         };

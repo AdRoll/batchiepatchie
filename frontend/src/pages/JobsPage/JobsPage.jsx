@@ -126,6 +126,7 @@ class JobsPage extends React.Component {
         jobs: PropTypes.array.isRequired,
         killJobs: PropTypes.func.isRequired,
         q: PropTypes.string,
+        dateRange: PropTypes.string,
         routing: PropTypes.object.isRequired,
         selectedIds: PropTypes.array.isRequired,
         setParams: PropTypes.func.isRequired,
@@ -153,6 +154,7 @@ class JobsPage extends React.Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.q !== prevProps.q ||
+            this.props.dateRange !== prevProps.dateRange ||
             this.props.sortColumn !== prevProps.sortColumn ||
             this.props.sortDirection !== prevProps.sortDirection ||
             this.props.page !== prevProps.page ||
@@ -315,6 +317,7 @@ class JobsPage extends React.Component {
             ...QUERY_PARAM_DEFAULTS,
             ...query,
             qTemp: query.q || '',
+            dateRange: query.dateRange || '1d',
             page: query.page ? parseInt(query.page) : 0,
             selectedIds: query.selectedIds ? query.selectedIds.split(',') : [],
             selectedQueue: !query.selectedQueue ? 'all' : query.selectedQueue,
@@ -343,6 +346,7 @@ class JobsPage extends React.Component {
 
 const mapStateToProps = state => ({
     q: state.job.q,
+    dateRange: state.job.dateRange,
     jobs: state.job.jobs,
     page: state.job.page,
     height: state.layout.height,
