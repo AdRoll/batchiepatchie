@@ -31,7 +31,7 @@ func ScaleComputeEnvironments(storer Storer, queues []string) {
 	 */
 
 	job_queue_names := make([]*string, 0)
-	for job_queue, _ := range running_loads {
+	for job_queue := range running_loads {
 		jq := job_queue
 		job_queue_names = append(job_queue_names, &jq)
 	}

@@ -47,7 +47,11 @@ func (s *Server) SubscribeToJobEvent(c echo.Context) error {
 			return err
 		}
 		now := time.Now()
-		ws.SetWriteDeadline(now.Add(time.Second * 5))
+		err = ws.SetWriteDeadline(now.Add(time.Second * 5))
+		if err != nil {
+			log.Warning("Cannot set write deadline: ", err)
+			return err
+		}
 		err = ws.WriteMessage(websocket.TextMessage, marshalled)
 		if err != nil {
 			log.Warning("Cannot send job status to WebSocket: ", err)
@@ -73,7 +77,11 @@ func (s *Server) SubscribeToJobEvent(c echo.Context) error {
 			}
 
 			now := time.Now()
-			ws.SetWriteDeadline(now.Add(time.Second * 5))
+			err = ws.SetWriteDeadline(now.Add(time.Second * 5))
+			if err != nil {
+				log.Warning("Cannot set write deadline: ", err)
+				return err
+			}
 			err = ws.WriteMessage(websocket.TextMessage, marshalled)
 			if err != nil {
 				log.Warning("Cannot send job status to WebSocket: ", err)
@@ -89,7 +97,11 @@ func (s *Server) SubscribeToJobEvent(c echo.Context) error {
 				}
 			}
 			now := time.Now()
-			ws.SetWriteDeadline(now.Add(time.Second * 5))
+			err = ws.SetWriteDeadline(now.Add(time.Second * 5))
+			if err != nil {
+				log.Warning("Cannot set write deadline: ", err)
+				return err
+			}
 
 			err = ws.WriteMessage(websocket.TextMessage, marshalled)
 			if err != nil {

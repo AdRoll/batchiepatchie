@@ -120,7 +120,11 @@ func (s *Server) JobStatusNotification(c echo.Context) error {
 	jobs := make([]*jobs.Job, 1)
 	jobs[0] = &job
 
-	s.Storage.Store(jobs)
+	err = s.Storage.Store(jobs)
+	if err != nil {
+		log.Warn("Failed to store job status notification: ", err)
+		return err
+	}
 	log.Info("Got job status notification for job: ", job_status_notification.Detail.JobId)
 	return nil
 }

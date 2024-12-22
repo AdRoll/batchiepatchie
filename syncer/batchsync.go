@@ -174,8 +174,7 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 						run_started_time = &tt
 					}
 					if last_attempt.Container != nil && last_attempt.Container.ExitCode != nil {
-						var ec int64
-						ec = *last_attempt.Container.ExitCode
+						ec := *last_attempt.Container.ExitCode
 						exit_code = &ec
 					}
 					if last_attempt.Container != nil && last_attempt.Container.LogStreamName != nil {
@@ -251,7 +250,10 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 			}
 		}
 
-		storer.Store(jobs_to_insert)
+		err = storer.Store(jobs_to_insert)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return known_job_ids, nil
@@ -282,7 +284,10 @@ func syncJobs(storer jobs.Storer, queues []string) (map[string]bool, error) {
 	log.Info("Logging changes in number of jobs...\n")
 	for _, summary := range job_summaries {
 		summary_lst := []jobs.JobSummary{*summary}
-		storer.UpdateJobSummaryLog(summary_lst)
+		err := storer.UpdateJobSummaryLog(summary_lst)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return known_job_ids, nil
@@ -298,8 +303,12 @@ func RunPeriodicScaler(fs jobs.FinderStorer) {
 			}
 
 			log.Info("Logging ECS cluster statuses.")
-			jobs.MonitorECSClusters(fs, queues)
-			log.Info("Logging ECS cluster statuses complete.")
+			err = jobs.MonitorECSClusters(fs, queues)
+			if err != nil {
+				log.Error("Cannot monitor ECS clusters: ", err)
+			} else {
+				log.Info("Logging ECS cluster statuses complete.")
+			}
 
 			log.Info("Starting scaling with AWS Batch.")
 			jobs.ScaleComputeEnvironments(fs, queues)
@@ -309,7 +318,10 @@ func RunPeriodicScaler(fs jobs.FinderStorer) {
 			jobs.MonitorComputeEnvironments(fs, queues)
 			log.Info("Logging compute environments round complete.")
 
-			jobs.KillTimedOutJobs(fs)
+			err = jobs.KillTimedOutJobs(fs)
+			if err != nil {
+				log.Error("Cannot kill timed out jobs: ", err)
+			}
 			time.Sleep(time.Second * time.Duration(config.Conf.ScalePeriod))
 		}
 	}()
@@ -329,7 +341,10 @@ func RunPeriodicSynchronizer(fs jobs.FinderStorer, killer jobs.Killer) {
 					if err != nil {
 						log.Error("Cannot get stuck starting jobs: ", err)
 					}
-					killer.KillInstances(instance_ids)
+					err = killer.KillInstances(instance_ids)
+					if err != nil {
+						log.Error("Cannot kill stuck starting jobs: ", err)
+					}
 					log.Info("Checked and killed stuck STARTING jobs.")
 				}
 				killer()
