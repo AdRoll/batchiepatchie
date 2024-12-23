@@ -242,7 +242,7 @@ func MonitorECSClusters(fs Storer, queues []string) error {
 	}
 
 	ec2instances_lst := make([]*string, 0)
-	for ec2instance, _ := range ec2instances_set {
+	for ec2instance := range ec2instances_set {
 		n := ec2instance
 		ec2instances_lst = append(ec2instances_lst, &n)
 	}
@@ -306,9 +306,9 @@ func MonitorECSClusters(fs Storer, queues []string) error {
 				}
 				launched_at := instance.LaunchTime
 				ec2instances_info[*instance.InstanceId] = Ec2Info{
-					PublicIP:  public_ip,
-					PrivateIP: private_ip,
-					AMI:       ami,
+					PublicIP:              public_ip,
+					PrivateIP:             private_ip,
+					AMI:                   ami,
 					ComputeEnvironmentARN: compute_environment_arn,
 					ECSClusterARN:         ecs_cluster_arn,
 					AvailabilityZone:      az,

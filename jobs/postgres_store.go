@@ -902,7 +902,7 @@ func (pq *postgreSQLStore) UpdateECSInstances(ec2info map[string]Ec2Info, tasks_
 		}
 	}
 
-	for alive_instance_id, _ := range alive_instances_set {
+	for alive_instance_id := range alive_instances_set {
 		query := `update instances set disappeared_at = now() WHERE instance_id = $1`
 		_, err := transaction.Exec(query, alive_instance_id)
 		if err != nil {

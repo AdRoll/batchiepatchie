@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 var (

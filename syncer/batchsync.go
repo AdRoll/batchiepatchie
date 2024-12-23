@@ -2,6 +2,7 @@ package syncer
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/AdRoll/batchiepatchie/awsclients"
@@ -10,7 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/batch"
 	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 )
 
 func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summaries map[string]*jobs.JobSummary, parentSpan opentracing.Span) (map[string]bool, error) {

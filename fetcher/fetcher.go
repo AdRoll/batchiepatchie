@@ -4,7 +4,8 @@ package fetcher
 // locally.
 
 import (
-	"io/ioutil"
+	"io"
+	"os"
 	"regexp"
 
 	"github.com/AdRoll/batchiepatchie/awsclients"
@@ -39,7 +40,7 @@ func ReadAllNoSessions(location string) ([]byte, error) {
 		return nil, err
 	}
 	defer result.Body.Close()
-	return ioutil.ReadAll(result.Body)
+	return io.ReadAll(result.Body)
 }
 
 func ReadAll(location string) ([]byte, error) {
@@ -65,9 +66,9 @@ func ReadAll(location string) ([]byte, error) {
 	}
 
 	defer result.Body.Close()
-	return ioutil.ReadAll(result.Body)
+	return io.ReadAll(result.Body)
 }
 
 func readAllLocalFile(location string) ([]byte, error) {
-	return ioutil.ReadFile(location)
+	return os.ReadFile(location)
 }
