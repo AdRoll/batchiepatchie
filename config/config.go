@@ -120,14 +120,15 @@ func ReadConfiguration(filename string) error {
 		log.Fatal("frontend_assets must be either 'local' or 's3'.")
 	}
 
-	awsclients.OpenSessions(Conf.Region)
+	err = awsclients.OpenSessions(Conf.Region)
+	if err != nil {
+		log.Fatal("Cannot open AWS sessions: ", err)
+	}
 
 	if Conf.FrontendAssets == "local" {
 		if Conf.FrontendAssetsBucket != "" || Conf.FrontendAssetsKey != "" {
 			log.Fatal("When using frontend_assets=\"local\" then neither frontend_assets_bucket or frontend_key should be specified.")
 		}
-
-		Conf.FrontendAssetsLocalPrefix = Conf.FrontendAssetsLocalPrefix
 	} else if Conf.FrontendAssets == "s3" {
 		if Conf.FrontendAssetsLocalPrefix != "" {
 			log.Fatal("When using frontend_assets=\"s3\" then frontend_assets_local_prefix should not be specified.")

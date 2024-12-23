@@ -54,7 +54,7 @@ func ScaleComputeEnvironments(storer Storer, queues []string) {
 	wanted_vcpus_by_ce := make(map[string]int64)
 	for job_queue, load := range running_loads {
 		desc, ok := job_queue_descs_map[job_queue]
-		if ok != true {
+		if !ok {
 			log.Info("Cannot find information for job queue ", job_queue, " so won't do any scaling for it.")
 			continue
 		}
@@ -71,17 +71,19 @@ func ScaleComputeEnvironments(storer Storer, queues []string) {
 			continue
 		}
 
-		for _, ce := range desc.ComputeEnvironmentOrder {
-			ce_name := ce.ComputeEnvironment
-			old_vcpus, ok := wanted_vcpus_by_ce[*ce_name]
-			if ok {
-				wanted_vcpus_by_ce[*ce_name] = old_vcpus + load.WantedVCpus
-			} else {
-				wanted_vcpus_by_ce[*ce_name] = load.WantedVCpus
-			}
-			// Stop wanting CPUs in more than one compute environment in job queue.
-			// TODO: somehow distribute load to more than one compute environment instead of stopping here.
-			break
+		if len(desc.ComputeEnvironmentOrder) < 1 {
+			log.Warning("Job queue ", job_queue, " has no compute environment order set.")
+			continue
+		}
+
+		// TODO: somehow distribute load to more than one compute environment instead of using the first one.
+		ce := desc.ComputeEnvironmentOrder[0]
+		ce_name := ce.ComputeEnvironment
+		old_vcpus, ok := wanted_vcpus_by_ce[*ce_name]
+		if ok {
+			wanted_vcpus_by_ce[*ce_name] = old_vcpus + load.WantedVCpus
+		} else {
+			wanted_vcpus_by_ce[*ce_name] = load.WantedVCpus
 		}
 	}
 
