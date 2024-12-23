@@ -48,6 +48,8 @@ type Config struct {
 	KillStuckJobs bool `toml:"kill_stuck_jobs"`
 
 	UseDatadogTracing bool `toml:"use_datadog_tracing"`
+
+	UseAutoScaler bool `toml:"use_auto_scaler"`
 }
 
 // Store config in a global variable

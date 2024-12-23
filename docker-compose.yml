@@ -1,4 +1,3 @@
-version: '2'
 services:
   api:
     build: .
@@ -13,26 +12,26 @@ services:
       - "9999:9999"
       - "5454:5454"
     privileged: true   # Privileges are dropped by docker_run.sh, privileges needed for user setup in local development
-    links:
-      - postgres
     ulimits:
       nproc: 65535
       nofile:
         soft: 90000
         hard: 90000
     depends_on:
-      - "postgres"
-      - "migrations"
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
 
   migrations:
     build: .
     volumes:
       - .:/go/src/github.com/AdRoll/batchiepatchie
-    links:
-      - postgres
+    command: sh -c 'cd migrations && goose postgres "user=postgres dbname=postgres sslmode=disable host=postgres password=123456" up'
     depends_on:
-      - "postgres"
-    command: sh -c 'sleep 20 && cd migrations && goose postgres "user=postgres dbname=postgres sslmode=disable host=postgres password=123456" up'
+      postgres:
+        condition: service_healthy
+
 
   postgres:
     image: postgres:9.6.2-alpine
@@ -40,6 +39,11 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: 123456
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   frontend:
     build:
@@ -50,8 +54,6 @@ services:
       - ./frontend/public:/opt/frontend/public
     ports:
       - "8080:8080"
-    links:
-      - api
     command: npm run dev
 
 networks:
