@@ -44,12 +44,14 @@ type Config struct {
 
 	SyncPeriod  int `toml:"sync_period"`
 	ScalePeriod int `toml:"scale_period"`
+	CleanPeriod int `toml:"clean_period"`
 
 	KillStuckJobs bool `toml:"kill_stuck_jobs"`
 
 	UseDatadogTracing bool `toml:"use_datadog_tracing"`
 
 	UseAutoScaler bool `toml:"use_auto_scaler"`
+	UseCleaner    bool `toml:"use_cleaner"`
 }
 
 // Store config in a global variable
@@ -78,8 +80,10 @@ func ReadConfiguration(filename string) error {
 		// Default values here
 		SyncPeriod:    30,
 		ScalePeriod:   30,
+		CleanPeriod:   30 * 60 * 1000 * 1000 * 1000, // 30 minutes
 		KillStuckJobs: false,
 		UseAutoScaler: true,
+		UseCleaner:    false,
 	}
 	if _, err := toml.Decode(string(tomlData), &Conf); err != nil {
 		return err

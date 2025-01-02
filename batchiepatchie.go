@@ -119,6 +119,12 @@ func main() {
 	} else {
 		log.Info("Auto-scaler disabled.")
 	}
+	// Launch the periodic cleaner
+	if config.Conf.UseCleaner {
+		syncer.RunPeriodicCleaner(storage)
+	} else {
+		log.Info("Cleaner disabled.")
+	}
 
 	// handle.Server is a structure to save context shared between requests
 	s := &handlers.Server{

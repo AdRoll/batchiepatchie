@@ -1460,7 +1460,42 @@ func (pq *postgreSQLStore) SubscribeToJobStatus(jobID string) (<-chan Job, func(
 	return status_channel, unsubscribe
 }
 
-func NewPostgreSQLStore(databaseHost string, databasePort int, databaseUsername string, databaseName string, databasePassword string, databaseRootCertificate string) (FinderStorer, error) {
+func (pq *postgreSQLStore) CleanOldJobs() error {
+	span := opentracing.StartSpan("PG.CleanOldJobs")
+	defer span.Finish()
+
+	ctx_timeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	transaction, err := pq.connection.BeginTx(ctx_timeout, &sql.TxOptions{})
+	if err != nil {
+		log.Warn(err)
+		return err
+	}
+
+	query := `DELETE FROM jobs WHERE last_updated < NOW() - INTERVAL '30 day'`
+
+	_, err = transaction.ExecContext(ctx_timeout, query)
+	if err != nil {
+		log.Warn(err)
+		newErr := transaction.Rollback()
+		if newErr != nil {
+			log.Warn(newErr)
+			return newErr
+		}
+		return err
+	}
+
+	err = transaction.Commit()
+	if err != nil {
+		log.Warn("Cannot commit transaction: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func NewPostgreSQLStore(databaseHost string, databasePort int, databaseUsername string, databaseName string, databasePassword string, databaseRootCertificate string) (*postgreSQLStore, error) {
 	var dbstr string
 	if databaseRootCertificate == "" {
 		dbstr = fmt.Sprintf("user=%s dbname=%s host=%s port=%d password=%s sslmode=disable", databaseUsername, databaseName, databaseHost, databasePort, databasePassword)

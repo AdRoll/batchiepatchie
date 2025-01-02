@@ -382,3 +382,15 @@ func RunSynchronizer(fs jobs.FinderStorer, queues []string) error {
 
 	return nil
 }
+
+func RunPeriodicCleaner(cleaner jobs.Cleaner) {
+	go func() {
+		for {
+			err := cleaner.CleanOldJobs()
+			if err != nil {
+				log.Error("Cannot clean old jobs: ", err)
+			}
+			time.Sleep(time.Second * time.Duration(config.Conf.CleanPeriod))
+		}
+	}()
+}
