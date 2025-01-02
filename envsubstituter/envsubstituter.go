@@ -28,7 +28,7 @@ func EnvironmentSubstitute(subject string) (string, error) {
 				if subject[j] == '}' {
 					env_value, present := os.LookupEnv(env_name.String())
 					if !present {
-						return "", fmt.Errorf("Environment variable '%s' is not defined. Cannot perform substitution on '%s'", env_name, subject)
+						return "", fmt.Errorf("Environment variable '%v' is not defined. Cannot perform substitution on '%s'", env_name, subject)
 					}
 					result.WriteString(env_value)
 					break

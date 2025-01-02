@@ -32,8 +32,7 @@ func fetchIndex() ([]byte, error) {
 }
 
 func pingHandler(c echo.Context) error {
-	c.String(http.StatusOK, "pong")
-	return nil
+	return c.String(http.StatusOK, "pong")
 }
 
 func main() {

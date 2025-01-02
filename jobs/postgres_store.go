@@ -333,7 +333,13 @@ func (pq *postgreSQLStore) StaleOldJobs(job_ids map[string]bool) error {
 			}
 			return nil
 		}
-		defer final()
+		defer func() {
+			err := final()
+			if err != nil {
+				log.Warning("Cannot finalize StaleOldJobs: ", err)
+				return
+			}
+		}()
 
 		query := `create temporary table jobs_known_about ( job_id text primary key ) on commit drop`
 		_, err = transaction.Exec(query)
@@ -405,7 +411,13 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			}
 			return nil
 		}
-		defer final()
+		defer func() {
+			err := final()
+			if err != nil {
+				log.Warning("Cannot finalize Store: ", err)
+				return
+			}
+		}()
 		inserts_and_updates := 0
 		for _, job := range jobs {
 			extra_where_check := ""
@@ -628,7 +640,13 @@ func (pq *postgreSQLStore) UpdateJobSummaryLog(job_summaries []JobSummary) error
 		}
 		return nil
 	}
-	defer final()
+	defer func() {
+		err := final()
+		if err != nil {
+			log.Warning("Cannot finalize UpdateJobSummaryLog: ", err)
+			return
+		}
+	}()
 
 	for _, job_summary := range job_summaries {
 		err := func() error {
@@ -806,7 +824,13 @@ func (pq *postgreSQLStore) UpdateECSInstances(ec2info map[string]Ec2Info, tasks_
 		}
 		return nil
 	}
-	defer final()
+	defer func() {
+		err := final()
+		if err != nil {
+			log.Warning("Cannot finalize UpdateECSInstances: ", err)
+			return
+		}
+	}()
 
 	query := `insert into instances
 	            ( appeared_at
@@ -878,7 +902,7 @@ func (pq *postgreSQLStore) UpdateECSInstances(ec2info map[string]Ec2Info, tasks_
 		}
 	}
 
-	for alive_instance_id, _ := range alive_instances_set {
+	for alive_instance_id := range alive_instances_set {
 		query := `update instances set disappeared_at = now() WHERE instance_id = $1`
 		_, err := transaction.Exec(query, alive_instance_id)
 		if err != nil {
@@ -918,7 +942,13 @@ func (pq *postgreSQLStore) UpdateTaskArnsInstanceIDs(ec2info map[string]Ec2Info,
 		}
 		return nil
 	}
-	defer final()
+	defer func() {
+		err := final()
+		if err != nil {
+			log.Warning("Cannot finalize UpdateTaskArnsInstanceIDs: ", err)
+			return
+		}
+	}()
 
 	for task_arn, ec2instance := range task_ec2_mapping {
 		ec2_info, ok := ec2info[ec2instance]
@@ -997,7 +1027,13 @@ func (pq *postgreSQLStore) UpdateComputeEnvironmentsLog(ce_lst []ComputeEnvironm
 		}
 		return nil
 	}
-	defer final()
+	defer func() {
+		err := final()
+		if err != nil {
+			log.Warning("Cannot finalize UpdateComputeEnvironmentsLog: ", err)
+			return
+		}
+	}()
 
 	_, err = transaction.Exec(`set session characteristics as transaction isolation level serializable`)
 	if err != nil {
@@ -1222,7 +1258,13 @@ func (pq *postgreSQLStore) flushJobStatusSubscriptions() error {
 			}
 			return nil
 		}
-		defer final()
+		defer func() {
+			err := final()
+			if err != nil {
+				log.Warning("Cannot finalize flushJobStatusSubscriptions: ", err)
+				return
+			}
+		}()
 
 		query := `SELECT job_id FROM job_status_events`
 		rows, err := tx.QueryContext(ctx_timeout, query)

@@ -28,9 +28,7 @@ func (th *KillerHandler) KillOne(jobID string, reason string, store Storer) erro
 		return err
 	}
 
-	store.UpdateJobLogTerminationRequested(jobID)
-
-	return nil
+	return store.UpdateJobLogTerminationRequested(jobID)
 }
 
 func (th *KillerHandler) KillInstances(instances []string) error {

@@ -28,9 +28,7 @@ func GetComputeEnvironments(parentSpan opentracing.Span) ([]ComputeEnvironment, 
 		}
 		nextToken = out.NextToken
 
-		for _, detail := range out.ComputeEnvironments {
-			compute_environments = append(compute_environments, detail)
-		}
+		compute_environments = append(compute_environments, out.ComputeEnvironments...)
 
 		if nextToken == nil {
 			break
@@ -71,8 +69,13 @@ func MonitorComputeEnvironments(fs Storer, queues []string) {
 
 	compute_environments, err := GetComputeEnvironments(span)
 	if err != nil {
+		log.Warning("Failed to get compute environments: ", err)
 		return
 	}
 
-	fs.UpdateComputeEnvironmentsLog(compute_environments)
+	err = fs.UpdateComputeEnvironmentsLog(compute_environments)
+	if err != nil {
+		log.Warning("Failed to update compute environments log: ", err)
+		return
+	}
 }

@@ -2,15 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
+	"regexp"
+	"strconv"
+	"time"
+
 	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"github.com/opentracing/opentracing-go"
-	"io"
-	"io/ioutil"
-	"regexp"
-	"strconv"
-	"time"
 )
 
 // This structure and the ones below it match the CloudWatch event JSON we get from AWS Lambda function.
@@ -61,7 +61,7 @@ func (s *Server) JobStatusNotification(c echo.Context) error {
 
 	// This function can be called from outside to update job status.
 	// It's meant to used from an AWS Lambda function that is triggered on AWS Batch events.
-	body, err := ioutil.ReadAll(io.LimitReader(c.Request().Body, 100000))
+	body, err := io.ReadAll(io.LimitReader(c.Request().Body, 100000))
 	if err != nil {
 		log.Warn("Failed reading job status notification posted on our API: ", err)
 		return err
@@ -120,7 +120,11 @@ func (s *Server) JobStatusNotification(c echo.Context) error {
 	jobs := make([]*jobs.Job, 1)
 	jobs[0] = &job
 
-	s.Storage.Store(jobs)
+	err = s.Storage.Store(jobs)
+	if err != nil {
+		log.Warn("Failed to store job status notification: ", err)
+		return err
+	}
 	log.Info("Got job status notification for job: ", job_status_notification.Detail.JobId)
 	return nil
 }

@@ -6,6 +6,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/AdRoll/batchiepatchie/awsclients"
 	"github.com/AdRoll/batchiepatchie/jobs"
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,10 +19,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"github.com/opentracing/opentracing-go"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -82,12 +83,15 @@ func (s *Server) Find(c echo.Context) error {
 
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
-	c.JSON(http.StatusOK, foundJobs)
-	return nil
+	return c.JSON(http.StatusOK, foundJobs)
 }
 
 func (s *Server) GetStatus(c echo.Context) error {
@@ -99,16 +103,18 @@ func (s *Server) GetStatus(c echo.Context) error {
 	job, err := s.Storage.GetStatus(query)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
 	if job == nil {
-		c.JSON(http.StatusNotFound, job)
-		return nil
+		return c.JSON(http.StatusNotFound, job)
 	} else {
-		c.JSON(http.StatusOK, job)
-		return nil
+		return c.JSON(http.StatusOK, job)
 	}
 }
 
@@ -122,12 +128,15 @@ func (s *Server) FindOne(c echo.Context) error {
 	job, err := s.Storage.FindOne(query)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
-	c.JSON(http.StatusOK, job)
-	return nil
+	return c.JSON(http.StatusOK, job)
 }
 
 // KillMany is a request handler, kills a job matching the post parameter 'id' (AWS task ID)
@@ -138,7 +147,13 @@ func (s *Server) KillMany(c echo.Context) error {
 	obj, err := BodyToKillTask(c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "{\"error\": \"Cannot deserialize\"}")
+		log.Error(err)
+		newErr := c.JSON(http.StatusBadRequest, "{\"error\": \"Cannot deserialize\"}")
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
+		return err
 	}
 
 	values := obj.IDs
@@ -153,8 +168,7 @@ func (s *Server) KillMany(c echo.Context) error {
 		results[value] = "OK"
 	}
 
-	c.JSON(http.StatusOK, results)
-	return nil
+	return c.JSON(http.StatusOK, results)
 }
 
 func (s *Server) FetchLogs(c echo.Context) error {
@@ -165,8 +179,7 @@ func (s *Server) FetchLogs(c echo.Context) error {
 
 	format := c.QueryParam("format")
 	if format != "text" {
-		c.JSON(http.StatusBadRequest, "Only 'text' format is supported. Add format=text to your query.")
-		return nil
+		return c.JSON(http.StatusBadRequest, "Only 'text' format is supported. Add format=text to your query.")
 	}
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMETextPlain)
 
@@ -175,7 +188,11 @@ func (s *Server) FetchLogs(c echo.Context) error {
 	job, err := s.Storage.FindOne(id)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
@@ -225,7 +242,11 @@ func (s *Server) FetchLogs(c echo.Context) error {
 
 	if err != nil {
 		log.Error(err)
-		c.String(http.StatusInternalServerError, err.Error())
+		newErr := c.String(http.StatusInternalServerError, err.Error())
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
@@ -301,12 +322,15 @@ func (s *Server) KillOne(c echo.Context) error {
 
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
-	c.JSON(http.StatusOK, task.ID)
-	return nil
+	return c.JSON(http.StatusOK, task.ID)
 }
 
 func (s *Server) ListActiveJobQueues(c echo.Context) error {
@@ -316,12 +340,15 @@ func (s *Server) ListActiveJobQueues(c echo.Context) error {
 	active_job_queues, err := s.Storage.ListActiveJobQueues()
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
-	c.JSON(http.StatusOK, active_job_queues)
-	return nil
+	return c.JSON(http.StatusOK, active_job_queues)
 }
 
 func (s *Server) ListAllJobQueues(c echo.Context) error {
@@ -345,7 +372,12 @@ func (s *Server) ListAllJobQueues(c echo.Context) error {
 		}
 		job_queues, err := svc.DescribeJobQueues(input)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			log.Error(err)
+			newErr := c.JSON(http.StatusInternalServerError, err)
+			if newErr != nil {
+				log.Error(newErr)
+				return newErr
+			}
 			return err
 		}
 
@@ -360,8 +392,7 @@ func (s *Server) ListAllJobQueues(c echo.Context) error {
 		}
 	}
 
-	c.JSON(http.StatusOK, result)
-	return nil
+	return c.JSON(http.StatusOK, result)
 }
 
 func (s *Server) ActivateJobQueue(c echo.Context) error {
@@ -371,11 +402,15 @@ func (s *Server) ActivateJobQueue(c echo.Context) error {
 	job_queue_name := c.Param("name")
 	err := s.Storage.ActivateJobQueue(job_queue_name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		log.Error(err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	} else {
-		c.String(http.StatusOK, "[]")
-		return nil
+		return c.String(http.StatusOK, "[]")
 	}
 }
 
@@ -386,11 +421,15 @@ func (s *Server) DeactivateJobQueue(c echo.Context) error {
 	job_queue_name := c.Param("name")
 	err := s.Storage.DeactivateJobQueue(job_queue_name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		log.Error(err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	} else {
-		c.String(http.StatusOK, "[]")
-		return nil
+		return c.String(http.StatusOK, "[]")
 	}
 }
 
@@ -411,13 +450,21 @@ func (s *Server) JobStats(c echo.Context) error {
 
 	if start_err != nil {
 		log.Error(start_err)
-		c.JSON(http.StatusInternalServerError, start_err)
+		newErr := c.JSON(http.StatusInternalServerError, start_err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return start_err
 	}
 
 	if end_err != nil {
 		log.Error(end_err)
-		c.JSON(http.StatusInternalServerError, end_err)
+		newErr := c.JSON(http.StatusInternalServerError, end_err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return end_err
 	}
 
@@ -453,24 +500,26 @@ func (s *Server) JobStats(c echo.Context) error {
 
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
+		newErr := c.JSON(http.StatusInternalServerError, err)
+		if newErr != nil {
+			log.Error(newErr)
+			return newErr
+		}
 		return err
 	}
 
-	c.JSON(http.StatusOK, results)
-	return nil
+	return c.JSON(http.StatusOK, results)
 }
 
 // IndexHandler returns
 func (s *Server) IndexHandler(c echo.Context) error {
-	c.HTMLBlob(http.StatusOK, s.Index)
-	return nil
+	return c.HTMLBlob(http.StatusOK, s.Index)
 }
 
 func BodyToKillTask(c echo.Context) (KillTasks, error) {
 	var obj KillTasks
 
-	s, err := ioutil.ReadAll(c.Request().Body)
+	s, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		log.Error("Cannot read request")
 		return obj, err
