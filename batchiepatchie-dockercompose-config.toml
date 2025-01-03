@@ -8,3 +8,4 @@ database_name = "postgres"
 database_password = "123456"
 frontend_assets = "local"
 frontend_assets_local_prefix = "frontend/dist"
+use_auto_scaler = false
