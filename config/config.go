@@ -79,6 +79,7 @@ func ReadConfiguration(filename string) error {
 		SyncPeriod:    30,
 		ScalePeriod:   30,
 		KillStuckJobs: false,
+		UseAutoScaler: true,
 	}
 	if _, err := toml.Decode(string(tomlData), &Conf); err != nil {
 		return err
