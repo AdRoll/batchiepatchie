@@ -34,7 +34,7 @@ BUILD_ENV_ENV=${BUILD_ENV:-}
 
 if [ "${BUILD_ENV_ENV}" = "DEBUG" ]; then
     # Runs the Delve debugger in headless mode.
-    dlv debug --headless=true --listen=:9999 --accept-multiclient=true --api-version=1
+    dlv debug --headless=true --listen=:9999 --accept-multiclient=true
 fi;
 
 if [ "${BUILD_ENV_ENV}" = "PRODUCTION" ]; then

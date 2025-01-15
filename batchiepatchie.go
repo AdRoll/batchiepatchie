@@ -113,7 +113,12 @@ func main() {
 	// Launch the periodic synchronizer
 	syncer.RunPeriodicSynchronizer(storage, killer)
 	// Launch the periodic scaler
-	syncer.RunPeriodicScaler(storage)
+	if config.Conf.UseAutoScaler {
+		log.Info("Auto-scaler enabled.")
+		syncer.RunPeriodicScaler(storage)
+	} else {
+		log.Info("Auto-scaler disabled.")
+	}
 
 	// handle.Server is a structure to save context shared between requests
 	s := &handlers.Server{

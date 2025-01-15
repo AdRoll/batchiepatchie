@@ -48,6 +48,8 @@ type Config struct {
 	KillStuckJobs bool `toml:"kill_stuck_jobs"`
 
 	UseDatadogTracing bool `toml:"use_datadog_tracing"`
+
+	UseAutoScaler bool `toml:"use_auto_scaler"`
 }
 
 // Store config in a global variable
@@ -77,6 +79,7 @@ func ReadConfiguration(filename string) error {
 		SyncPeriod:    30,
 		ScalePeriod:   30,
 		KillStuckJobs: false,
+		UseAutoScaler: true,
 	}
 	if _, err := toml.Decode(string(tomlData), &Conf); err != nil {
 		return err
