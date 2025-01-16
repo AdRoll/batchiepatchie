@@ -30,6 +30,7 @@ func ReadAllNoSessions(location string) ([]byte, error) {
 		return nil, err
 	}
 	session := session.Must(session.NewSession(&aws.Config{Region: aws.String(region_loc)}))
+
 	s3s := s3.New(session)
 
 	result, err := s3s.GetObject(&s3.GetObjectInput{

@@ -54,6 +54,7 @@ type Job struct {
 	StatusReason         *string          `json:"status_reason"`
 	RunStartTime         *time.Time       `json:"run_start_time"`
 	ExitCode             *int64           `json:"exitcode"`
+	LogGroupName         *string          `json:"log_group_name"`
 	LogStreamName        *string          `json:"log_stream_name"`
 	TerminationRequested bool             `json:"termination_requested"`
 	TaskARN              *string          `json:"task_arn"`

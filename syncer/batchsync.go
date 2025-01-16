@@ -161,6 +161,8 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 				var run_started_time *time.Time
 				var log_stream_name *string
 				var task_arn *string
+				var log_group_name *string
+				log_group_name = desc.Container.LogConfiguration.Options["awslogs-group"]
 
 				if len(desc.Attempts) > 0 {
 					last_attempt := desc.Attempts[len(desc.Attempts)-1]
@@ -190,6 +192,7 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 				if log_stream_name == nil && desc.Container != nil && desc.Container.LogStreamName != nil {
 					var lsn = *desc.Container.LogStreamName
 					log_stream_name = &lsn
+
 				}
 				if (task_arn == nil || *task_arn == "") && desc.Container != nil && desc.Container.TaskArn != nil {
 					task_arn_c := *desc.Container.TaskArn
@@ -243,6 +246,7 @@ func syncJobsStatus(storer jobs.Storer, status string, queues []string, job_summ
 					StatusReason:    &status_reason,
 					RunStartTime:    run_started_time,
 					ExitCode:        exit_code,
+					LogGroupName:    log_group_name,
 					LogStreamName:   log_stream_name,
 					TaskARN:         task_arn,
 					ArrayProperties: array_properties,
