@@ -1473,6 +1473,26 @@ func (pq *postgreSQLStore) CleanOldJobs() error {
 		return err
 	}
 
+	deleteInstanceInfo := `
+		DELETE FROM task_arns_to_instance_info
+		WHERE task_arn IN (
+			SELECT task_arn
+			FROM jobs
+			WHERE last_updated < NOW() - INTERVAL '30 day'
+		)`
+
+	_, err = transaction.ExecContext(ctx_timeout, deleteInstanceInfo)
+
+	if err != nil {
+		log.Warn(err)
+		newErr := transaction.Rollback()
+		if newErr != nil {
+			log.Warn(newErr)
+			return newErr
+		}
+		return err
+	}
+
 	query := `DELETE FROM jobs WHERE last_updated < NOW() - INTERVAL '30 day'`
 
 	_, err = transaction.ExecContext(ctx_timeout, query)
