@@ -1495,6 +1495,41 @@ func (pq *postgreSQLStore) CleanOldJobs() error {
 	return nil
 }
 
+func (pq *postgreSQLStore) CleanOldInstanceEventLogs() error {
+	span := opentracing.StartSpan("PG.CleanOldInstanceEventLogs")
+	defer span.Finish()
+
+	ctx_timeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	transaction, err := pq.connection.BeginTx(ctx_timeout, &sql.TxOptions{})
+	if err != nil {
+		log.Warn(err)
+		return err
+	}
+
+	query := `DELETE FROM instance_event_log WHERE timestamp < NOW() - INTERVAL '30 day'`
+
+	_, err = transaction.ExecContext(ctx_timeout, query)
+	if err != nil {
+		log.Warn(err)
+		newErr := transaction.Rollback()
+		if newErr != nil {
+			log.Warn(newErr)
+			return newErr
+		}
+		return err
+	}
+
+	err = transaction.Commit()
+	if err != nil {
+		log.Warn("Cannot commit transaction: ", err)
+		return err
+	}
+
+	return nil
+}
+
 func NewPostgreSQLStore(databaseHost string, databasePort int, databaseUsername string, databaseName string, databasePassword string, databaseRootCertificate string) (*postgreSQLStore, error) {
 	var dbstr string
 	if databaseRootCertificate == "" {

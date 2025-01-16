@@ -390,6 +390,10 @@ func RunPeriodicCleaner(cleaner jobs.Cleaner) {
 			if err != nil {
 				log.Error("Cannot clean old jobs: ", err)
 			}
+			err = cleaner.CleanOldInstanceEventLogs()
+			if err != nil {
+				log.Error("Cannot clean old instance event logs: ", err)
+			}
 			time.Sleep(time.Second * time.Duration(config.Conf.CleanPeriod))
 		}
 	}()

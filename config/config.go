@@ -42,9 +42,9 @@ type Config struct {
 	FrontendAssetsBucket      string `toml:"frontend_assets_bucket"`
 	FrontendAssetsKey         string `toml:"frontend_assets_key"`
 
-	SyncPeriod  int `toml:"sync_period"`
-	ScalePeriod int `toml:"scale_period"`
-	CleanPeriod int `toml:"clean_period"`
+	SyncPeriod  int64 `toml:"sync_period"`
+	ScalePeriod int64 `toml:"scale_period"`
+	CleanPeriod int64 `toml:"clean_period"`
 
 	KillStuckJobs bool `toml:"kill_stuck_jobs"`
 
@@ -80,7 +80,7 @@ func ReadConfiguration(filename string) error {
 		// Default values here
 		SyncPeriod:    30,
 		ScalePeriod:   30,
-		CleanPeriod:   30 * 60 * 1000 * 1000 * 1000, // 30 minutes
+		CleanPeriod:   30 * 60, // 30 minutes in seconds
 		KillStuckJobs: false,
 		UseAutoScaler: true,
 		UseCleaner:    false,

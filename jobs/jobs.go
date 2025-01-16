@@ -205,6 +205,9 @@ type Storer interface {
 type Cleaner interface {
 	// CleanOldJobs cleans old jobs from the database
 	CleanOldJobs() error
+
+	// CleanOldInstanceEventLogs cleans old instance event logs from the database
+	CleanOldInstanceEventLogs() error
 }
 
 // Killer is an interface to kill jobs in the queue
