@@ -42,14 +42,16 @@ type Config struct {
 	FrontendAssetsBucket      string `toml:"frontend_assets_bucket"`
 	FrontendAssetsKey         string `toml:"frontend_assets_key"`
 
-	SyncPeriod  int `toml:"sync_period"`
-	ScalePeriod int `toml:"scale_period"`
+	SyncPeriod  int64 `toml:"sync_period"`
+	ScalePeriod int64 `toml:"scale_period"`
+	CleanPeriod int64 `toml:"clean_period"`
 
 	KillStuckJobs bool `toml:"kill_stuck_jobs"`
 
 	UseDatadogTracing bool `toml:"use_datadog_tracing"`
 
 	UseAutoScaler bool `toml:"use_auto_scaler"`
+	UseCleaner    bool `toml:"use_cleaner"`
 }
 
 // Store config in a global variable
@@ -78,8 +80,10 @@ func ReadConfiguration(filename string) error {
 		// Default values here
 		SyncPeriod:    30,
 		ScalePeriod:   30,
+		CleanPeriod:   30 * 60, // 30 minutes in seconds
 		KillStuckJobs: false,
 		UseAutoScaler: true,
+		UseCleaner:    false,
 	}
 	if _, err := toml.Decode(string(tomlData), &Conf); err != nil {
 		return err

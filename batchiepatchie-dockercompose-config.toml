@@ -9,3 +9,5 @@ database_password = "123456"
 frontend_assets = "local"
 frontend_assets_local_prefix = "frontend/dist"
 use_auto_scaler = false
+use_cleaner = true
+clean_period = 30 # seconds
