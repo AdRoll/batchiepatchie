@@ -39,6 +39,7 @@ fi;
 
 if [ "${BUILD_ENV_ENV}" = "PRODUCTION" ]; then
     sleep 5
+    go mod tidy
     go build -buildvcs=false
     ./batchiepatchie
 else

@@ -1,6 +1,7 @@
 FROM node:10.16.3-buster
 
 # AWS cli tools
+RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list
 RUN apt-get update && apt-get install -y \
     build-essential \
     python \

@@ -90,7 +90,8 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 				log_stream_name,
 				termination_requested,
 				task_arn,
-				array_properties
+				array_properties,
+				log_group_name
 			FROM jobs
 		`
 
@@ -199,11 +200,10 @@ func (pq *postgreSQLStore) Find(opts *Options) ([]*Job, error) {
 	allJobs := make([]*Job, 0)
 	for rows.Next() {
 		var job Job
-		if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.ArrayProperties); err != nil {
+		if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.ArrayProperties, &job.LogGroupName); err != nil {
 			log.Warning(err)
 			return nil, err
 		}
-
 		allJobs = append(allJobs, &job)
 	}
 	return allJobs, nil
@@ -268,7 +268,8 @@ func (pq *postgreSQLStore) FindOne(index string) (*Job, error) {
 				ta.instance_id,
 				ta.public_ip,
 				ta.private_ip,
-				jobs.array_properties
+				jobs.array_properties,
+				log_group_name
 			FROM jobs
 			LEFT OUTER JOIN task_arns_to_instance_info ta ON
 			ta.task_arn = jobs.task_arn
@@ -289,7 +290,7 @@ func (pq *postgreSQLStore) FindOne(index string) (*Job, error) {
 		job.StatusReason = &sr
 	}
 
-	if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.InstanceID, &job.PublicIP, &job.PrivateIP, &job.ArrayProperties); err != nil {
+	if err := rows.Scan(&job.Id, &job.Name, &job.Status, &job.Description, &job.LastUpdated, &job.JobQueue, &job.Image, &job.CreatedAt, &job.StoppedAt, &job.VCpus, &job.Memory, &job.Timeout, &job.CommandLine, &job.StatusReason, &job.RunStartTime, &job.ExitCode, &job.LogStreamName, &job.TerminationRequested, &job.TaskARN, &job.InstanceID, &job.PublicIP, &job.PrivateIP, &job.ArrayProperties, &job.LogGroupName); err != nil {
 		log.Warning(err)
 		return nil, err
 	}
@@ -456,15 +457,16 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			  timeout,
 			  command_line,
 			  last_updated,
-		          status_reason,
-		          run_started_at,
-		          exitcode,
-		          log_stream_name,
-		          task_arn,
-				  array_properties)
-			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-		      on conflict (job_id) do update set status = $6, last_updated = $12, status_reason = $13, run_started_at = $14, exitcode = $15, log_stream_name = $16, task_arn = $17, array_properties = $18
-		      where jobs.status <> $6 or jobs.status_reason <> $13 or jobs.exitcode <> $15 or jobs.log_stream_name <> $16 or jobs.task_arn <> $17 or (jobs.task_arn is null and $17 is not null) or (jobs.log_stream_name is null and $16 is not null) or (jobs.status_reason is null and $13 is not null) or (jobs.exitcode is null and $15 is not null)
+			  status_reason,
+			  run_started_at,
+			  exitcode,
+			  log_stream_name,
+			  task_arn,
+			  array_properties,
+			  log_group_name)
+			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+		      on conflict (job_id) do update set status = $6, last_updated = $12, status_reason = $13, run_started_at = $14, exitcode = $15, log_stream_name = $16, task_arn = $17, array_properties = $18, log_group_name = $19
+		      where jobs.status <> $6 or jobs.status_reason <> $13 or jobs.exitcode <> $15 or jobs.log_stream_name <> $16 or jobs.task_arn <> $17 or (jobs.task_arn is null and $17 is not null) or (jobs.log_stream_name is null and $16 is not null) or (jobs.status_reason is null and $13 is not null) or (jobs.exitcode is null and $15 is not null) or (jobs.log_group_name is null and $19 is not null)
 			  ` + extra_where_check
 				result, err := transaction.Exec(
 					query,
@@ -485,7 +487,8 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 					job.ExitCode,
 					job.LogStreamName,
 					job.TaskARN,
-					job.ArrayProperties)
+					job.ArrayProperties,
+					job.LogGroupName)
 				if err != nil {
 					log.Warning(err, ": ", job)
 					return err
@@ -511,15 +514,16 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 			  timeout,
 			  command_line,
 			  last_updated,
-		          status_reason,
-		          run_started_at,
-		          exitcode,
-		          log_stream_name,
-		          task_arn,
-				  array_properties)
-			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
-		      on conflict (job_id) do update set status = $6, last_updated = $13, stopped_at = $8, status_reason = $14, run_started_at = $15, exitcode = $16, log_stream_name = $17, task_arn = $18, array_properties = $19
-		      where jobs.status <> $6 or jobs.status_reason <> $14 or jobs.exitcode <> $16 or jobs.log_stream_name <> $17 or jobs.task_arn <> $18 or (jobs.task_arn is null and $18 is not null) or (jobs.log_stream_name is null and $17 is not null) or (jobs.status_reason is null and $14 is not null) or (jobs.exitcode is null and $16 is not null)
+		      status_reason,
+		      run_started_at,
+		      exitcode,
+		      log_stream_name,
+		      task_arn,
+			  array_properties,
+			  log_group_name)
+			  values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+		      on conflict (job_id) do update set status = $6, last_updated = $13, stopped_at = $8, status_reason = $14, run_started_at = $15, exitcode = $16, log_stream_name = $17, task_arn = $18, array_properties = $19, log_group_name = $20
+		      where jobs.status <> $6 or jobs.status_reason <> $14 or jobs.exitcode <> $16 or jobs.log_stream_name <> $17 or jobs.task_arn <> $18 or (jobs.task_arn is null and $18 is not null) or (jobs.log_stream_name is null and $17 is not null) or (jobs.status_reason is null and $14 is not null) or (jobs.exitcode is null and $16 is not null) or (jobs.log_group_name is null and $20 is not null) 
 			  ` + extra_where_check
 				result, err := transaction.Exec(
 					query,
@@ -541,7 +545,8 @@ func (pq *postgreSQLStore) Store(jobs []*Job) error {
 					job.ExitCode,
 					job.LogStreamName,
 					job.TaskARN,
-					job.ArrayProperties)
+					job.ArrayProperties,
+					job.LogGroupName)
 				if err != nil {
 					log.Warning(err, ": ", job)
 					return err
@@ -955,6 +960,11 @@ func (pq *postgreSQLStore) UpdateTaskArnsInstanceIDs(ec2info map[string]Ec2Info,
 		if !ok {
 			continue
 		}
+		public_ip := ""
+		if ec2_info.PublicIP != nil {
+			log.Info("PUBLIC IP NOT NILL", ec2_info.PublicIP)
+			public_ip = *ec2_info.PublicIP
+		}
 
 		query := `
 		INSERT INTO task_arns_to_instance_info
@@ -962,7 +972,7 @@ func (pq *postgreSQLStore) UpdateTaskArnsInstanceIDs(ec2info map[string]Ec2Info,
 		VALUES ( $1, $2, $3, $4 )
 		ON CONFLICT DO NOTHING
 		`
-		_, err = transaction.Exec(query, task_arn, ec2instance, ec2_info.PublicIP, ec2_info.PrivateIP)
+		_, err = transaction.Exec(query, task_arn, ec2instance, public_ip, ec2_info.PrivateIP)
 		if err != nil {
 			log.Error("Cannot insert into task_arns_to_instance_info: ", err)
 			return err
