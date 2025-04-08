@@ -11,7 +11,7 @@ EXPOSE 9999
 
 RUN go install github.com/pilu/fresh@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
-RUN wget https://github.com/pressly/goose/releases/download/v2.6.0/goose-linux64 -O /usr/bin/goose
+RUN wget https://github.com/pressly/goose/releases/download/v3.24.2/goose_linux_x86_64 -O /usr/bin/goose
 # RUN go get -u github.com/pressly/goose/cmd/goose
 RUN set -eux; \
 	apt-get update; \
